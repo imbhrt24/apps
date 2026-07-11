@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bharat · Apps & Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0d0d0d;--s1:#151516;--s2:#1b1b1d;--hair:#2a2a2d;--hair2:#3a3a3e;--ink:#dcdde2;--muted:#a6aab3;--sub:#7e818a;--accent:#6b76dd;--font:'Plus Jakarta Sans',system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+  .wrap{max-width:1040px;margin:0 auto;padding:80px 28px 100px}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  h1{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:14px}
+  .lead{font-size:16.5px;color:var(--muted);max-width:560px;line-height:1.6;margin-bottom:48px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+  a.card{display:block;text-decoration:none;color:inherit;background:var(--s1);border:1px solid var(--hair);border-radius:16px;padding:26px;transition:transform .2s,border-color .2s,background .2s}
+  a.card:hover{transform:translateY(-4px);border-color:var(--hair2);background:var(--s2)}
+  .emoji{font-size:30px;margin-bottom:16px}
+  .kind{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);margin-bottom:10px}
+  .name{font-size:18px;font-weight:700;margin-bottom:7px;letter-spacing:-.01em}
+  .desc{font-size:13.5px;color:var(--muted);line-height:1.55}
+  .go{margin-top:16px;font-size:12.5px;font-weight:600;color:var(--accent)}
+  footer{margin-top:56px;font-size:12.5px;color:var(--sub)}
+  footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">Bharat · imbhrt</div>
+    <h1>Apps &amp; Games</h1>
+    <p class="lead">Small things I've built and shipped — playable games and hands-on tools, all running right in the browser. Each one is a live, self-contained build.</p>
+    <div class="grid">
+      <a class="card" href="gully-run/">
+        <div class="emoji">🛺</div><div class="kind">Game · Three.js</div>
+        <div class="name">Gully Run</div>
+        <div class="desc">An endless runner down an Indian street — dodge autos, cows and shopfronts. गली रन.</div>
+        <div class="go">Play →</div>
+      </a>
+      <a class="card" href="uttarakhand/">
+        <div class="emoji">🚗</div><div class="kind">Game · Three.js</div>
+        <div class="name">Uttarakhand Hill Drive</div>
+        <div class="desc">A driving MVP through the Himalayan foothills — throttle, steer and slide around hairpin bends.</div>
+        <div class="go">Play →</div>
+      </a>
+      <a class="card" href="piano/">
+        <div class="emoji">🎹</div><div class="kind">App · Web Audio</div>
+        <div class="name">AURA Piano Studio</div>
+        <div class="desc">A playable browser piano with a live visualiser and a gallery of your recorded takes.</div>
+        <div class="go">Open →</div>
+      </a>
+      <a class="card" href="dashboard/">
+        <div class="emoji">🗂️</div><div class="kind">App · Personal</div>
+        <div class="name">Life Dashboard</div>
+        <div class="desc">A single-page hub for notes, tasks, goals, journaling and quick calculators.</div>
+        <div class="go">Open →</div>
+      </a>
+      <a class="card" href="illustro/">
+        <div class="emoji">🎨</div><div class="kind">App · Generative</div>
+        <div class="name">Illustro</div>
+        <div class="desc">Turn a line of text into an on-brand illustration, using your own free Gemini key.</div>
+        <div class="go">Open →</div>
+      </a>
+    </div>
+    <footer>Built by Bharat with Claude. Source lives in this repo.</footer>
+  </div>
+</body>
+</html>

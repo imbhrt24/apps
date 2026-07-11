@@ -1,0 +1,11 @@
+Model Information:
+* title:	Indian Style Building
+* source:	https://sketchfab.com/3d-models/indian-style-building-4066feb6fe1240e2b6f3710f243d5031
+* author:	Shahalam(Rihuwa Midori) (https://sketchfab.com/rihuwamidorikuro)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Indian Style Building" (https://sketchfab.com/3d-models/indian-style-building-4066feb6fe1240e2b6f3710f243d5031) by Shahalam(Rihuwa Midori) (https://sketchfab.com/rihuwamidorikuro) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

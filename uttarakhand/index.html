@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>D-RAD — Uttarakhand Hill Drive</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      background: #0b1220;
+      font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    #app { position: fixed; inset: 0; }
+    canvas { display: block; }
+
+    #hud {
+      position: fixed;
+      right: 24px;
+      bottom: 20px;
+      color: #fff;
+      text-align: right;
+      user-select: none;
+      pointer-events: none;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    }
+    #hud .speed {
+      font-size: 52px;
+      font-weight: 700;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    #hud .unit {
+      font-size: 14px;
+      letter-spacing: 2px;
+      opacity: 0.85;
+    }
+    #hud .alt {
+      margin-top: 6px;
+      font-size: 13px;
+      letter-spacing: 1px;
+      opacity: 0.8;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #help {
+      position: fixed;
+      left: 24px;
+      bottom: 20px;
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      line-height: 1.6;
+      user-select: none;
+      pointer-events: none;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    }
+    #help kbd {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: inherit;
+    }
+
+    #title {
+      position: fixed;
+      left: 24px;
+      top: 18px;
+      color: rgba(255,255,255,0.92);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+      user-select: none;
+      pointer-events: none;
+    }
+    #title .name { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+    #title .sub { font-size: 12px; opacity: 0.8; }
+  </style>
+  <script type="module" crossorigin src="assets/index-CFSI4T80.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="title">
+    <div class="name">D-RAD</div>
+    <div class="sub">Uttarakhand Hill Drive</div>
+  </div>
+  <div id="hud">
+    <div class="speed" id="speed">0</div>
+    <div class="unit">KM/H</div>
+    <div class="alt" id="alt">ALT 1450 m</div>
+  </div>
+  <div id="help">
+    <div><kbd>W</kbd>/<kbd>&uarr;</kbd> accelerate &nbsp; <kbd>S</kbd>/<kbd>&darr;</kbd> brake / reverse</div>
+    <div><kbd>A</kbd>/<kbd>&larr;</kbd> <kbd>D</kbd>/<kbd>&rarr;</kbd> steer &nbsp; <kbd>Space</kbd> handbrake &nbsp; <kbd>R</kbd> reset</div>
+  </div>
+</body>
+</html>

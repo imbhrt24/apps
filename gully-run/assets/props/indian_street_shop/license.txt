@@ -1,0 +1,11 @@
+Model Information:
+* title:	Indian street shop
+* source:	https://sketchfab.com/3d-models/indian-street-shop-a7476a895cb841709ccbd5d9d8b96f36
+* author:	nayan pachori (https://sketchfab.com/nayanpachori19)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Indian street shop" (https://sketchfab.com/3d-models/indian-street-shop-a7476a895cb841709ccbd5d9d8b96f36) by nayan pachori (https://sketchfab.com/nayanpachori19) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

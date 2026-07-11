@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Illustro — On-brand illustrations from text</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── Linear design tokens ─────────────────────────────────── */
+  :root{
+    --primary:#5e6ad2; --on-primary:#ffffff; --primary-hover:#828fff; --primary-focus:#5e69d1;
+    --ink:#f7f8f8; --ink-muted:#d0d6e0; --ink-subtle:#8a8f98; --ink-tertiary:#62666d;
+    --canvas:#010102; --surface-1:#0f1011; --surface-2:#141516; --surface-3:#18191a;
+    --hairline:#23252a; --hairline-strong:#34343a;
+    --success:#27a644; --danger:#e5484d;
+    --r-xs:4px; --r-sm:6px; --r-md:8px; --r-lg:12px; --r-xl:16px; --r-pill:9999px;
+    --font:'Inter',-apple-system,system-ui,'Segoe UI',Roboto,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--canvas);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;letter-spacing:-.05px;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  ::selection{background:rgba(94,106,210,.35)}
+
+  .display-lg{font-size:56px;font-weight:600;line-height:1.1;letter-spacing:-1.8px}
+  .display-md{font-size:40px;font-weight:600;line-height:1.15;letter-spacing:-1px}
+  .headline{font-size:28px;font-weight:600;line-height:1.2;letter-spacing:-.6px}
+  .card-title{font-size:22px;font-weight:500;line-height:1.25;letter-spacing:-.4px}
+  .body-lg{font-size:18px;line-height:1.5;letter-spacing:-.1px}
+  .body-sm{font-size:14px;line-height:1.5;letter-spacing:0}
+  .caption{font-size:12px;line-height:1.4;color:var(--ink-subtle)}
+  .eyebrow{font-size:13px;font-weight:500;letter-spacing:.4px;text-transform:uppercase;color:var(--ink-subtle)}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+
+  /* ── Top nav ──────────────────────────────────────────────── */
+  .topnav{position:sticky;top:0;z-index:50;height:56px;background:rgba(1,1,2,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--hairline)}
+  .topnav .wrap{height:100%;display:flex;align-items:center;gap:32px}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:600;font-size:16px;letter-spacing:-.3px}
+  .brand-mark{width:20px;height:20px;border-radius:5px;background:var(--primary);display:grid;place-items:center;color:#fff;font-size:11px;font-weight:700}
+  .nav-links{display:flex;gap:4px;flex:1}
+  .nav-links a{font-size:14px;font-weight:500;color:var(--ink-subtle);padding:6px 12px;border-radius:var(--r-md);transition:color .15s,background .15s}
+  .nav-links a:hover{color:var(--ink);background:var(--surface-1)}
+  .nav-links a.active{color:var(--ink);background:var(--surface-2)}
+  .api-badge{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-muted);background:var(--surface-2);border:1px solid var(--hairline);border-radius:var(--r-pill);padding:3px 10px;white-space:nowrap}
+  .api-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--ink-tertiary)}
+  .api-badge.on .dot{background:var(--success)}
+
+  /* ── Buttons ──────────────────────────────────────────────── */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--font);font-size:14px;font-weight:500;line-height:1.2;padding:8px 14px;border-radius:var(--r-md);border:1px solid transparent;cursor:pointer;transition:background .15s,border-color .15s;min-height:34px;white-space:nowrap}
+  .btn:focus-visible{outline:2px solid rgba(94,105,209,.5);outline-offset:1px}
+  .btn-primary{background:var(--primary);color:var(--on-primary)}
+  .btn-primary:hover{background:var(--primary-hover)}
+  .btn-primary:disabled{opacity:.45;cursor:default}
+  .btn-primary:disabled:hover{background:var(--primary)}
+  .btn-secondary{background:var(--surface-1);color:var(--ink);border-color:var(--hairline)}
+  .btn-secondary:hover{background:var(--surface-2);border-color:var(--hairline-strong)}
+  .btn-ghost{background:transparent;color:var(--ink-subtle)}
+  .btn-ghost:hover{color:var(--ink);background:var(--surface-1)}
+  .btn-danger{background:transparent;color:var(--danger);border-color:var(--hairline)}
+  .btn-danger:hover{border-color:var(--danger)}
+
+  /* ── Inputs ───────────────────────────────────────────────── */
+  .input,.textarea,.select{width:100%;background:var(--surface-1);color:var(--ink);border:1px solid var(--hairline);border-radius:var(--r-md);padding:8px 12px;font-family:var(--font);font-size:16px;line-height:1.5;transition:border-color .15s}
+  .input::placeholder,.textarea::placeholder{color:var(--ink-tertiary)}
+  .input:focus,.textarea:focus,.select:focus{outline:2px solid rgba(94,105,209,.5);outline-offset:0;border-color:var(--hairline-strong)}
+  .textarea{resize:vertical;min-height:110px}
+  .select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8f98' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:13px;font-weight:500;letter-spacing:.4px;text-transform:uppercase;color:var(--ink-subtle);margin-bottom:8px}
+
+  /* ── Cards & layout ───────────────────────────────────────── */
+  .card{background:var(--surface-1);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:24px}
+  .page{display:none;padding:48px 0 96px}
+  .page.active{display:block}
+  section+section{margin-top:64px}
+
+  /* ── Home ─────────────────────────────────────────────────── */
+  .hero{padding:72px 0 24px;max-width:720px}
+  .hero .eyebrow{margin-bottom:16px}
+  .hero p{color:var(--ink-muted);margin:20px 0 32px;max-width:560px}
+  .hero-actions{display:flex;gap:12px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .style-card{display:flex;flex-direction:column;gap:12px;transition:background .15s,border-color .15s;cursor:pointer}
+  .style-card:hover{background:var(--surface-2);border-color:var(--hairline-strong)}
+  .palette{display:flex;gap:6px}
+  .palette span{width:22px;height:22px;border-radius:var(--r-xs);border:1px solid var(--hairline)}
+  .style-card h3{font-size:22px;font-weight:500;letter-spacing:-.4px}
+  .style-card .tagline{font-size:14px;color:var(--ink-subtle);flex:1}
+  .style-card .use{font-size:14px;font-weight:500;color:var(--ink-muted)}
+  .style-card:hover .use{color:var(--ink)}
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px}
+  .section-head .caption{max-width:420px;text-align:right}
+  .ref-strip{display:flex;gap:6px;flex-wrap:wrap}
+  .ref-strip img{width:44px;height:44px;object-fit:cover;border-radius:var(--r-xs);border:1px solid var(--hairline)}
+
+  /* ── Create ───────────────────────────────────────────────── */
+  .create-grid{display:grid;grid-template-columns:400px 1fr;gap:24px;align-items:start}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .chip{font-size:12px;color:var(--ink-muted);background:var(--surface-2);border:1px solid var(--hairline);border-radius:var(--r-pill);padding:4px 10px;cursor:pointer;transition:border-color .15s}
+  .chip:hover{border-color:var(--hairline-strong);color:var(--ink)}
+  .output{background:var(--surface-1);border:1px solid var(--hairline);border-radius:var(--r-xl);padding:24px;min-height:520px;display:flex;flex-direction:column}
+  .output-stage{flex:1;display:grid;place-items:center;border-radius:var(--r-lg);overflow:hidden}
+  .output-stage img{max-height:560px;border-radius:var(--r-lg)}
+  .placeholder{text-align:center;color:var(--ink-tertiary);font-size:14px;max-width:280px}
+  .placeholder svg{margin:0 auto 14px;display:block;opacity:.5}
+  .output-actions{display:flex;gap:10px;justify-content:flex-end;padding-top:20px;border-top:1px solid var(--hairline);margin-top:20px}
+  .spinner{width:28px;height:28px;border:3px solid var(--hairline-strong);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .notice{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--hairline);border-radius:var(--r-md);padding:12px 14px;font-size:14px;color:var(--ink-muted);margin-bottom:16px}
+  .notice.error{border-color:rgba(229,72,77,.4);color:#f0a3a5}
+  .notice a{color:var(--ink);font-weight:500;text-decoration:underline;text-underline-offset:3px}
+  .hidden{display:none!important}
+
+  /* ── Gallery ──────────────────────────────────────────────── */
+  .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .g-card{background:var(--surface-1);border:1px solid var(--hairline);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column}
+  .g-card img{width:100%;aspect-ratio:1/1;object-fit:cover;background:var(--surface-2)}
+  .g-meta{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .g-meta .prompt{font-size:14px;color:var(--ink-muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1}
+  .g-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .badge{font-size:12px;color:var(--ink-muted);background:var(--surface-2);border-radius:var(--r-pill);padding:2px 8px}
+  .icon-btn{background:none;border:none;color:var(--ink-subtle);cursor:pointer;padding:6px;border-radius:var(--r-md);display:grid;place-items:center}
+  .icon-btn:hover{color:var(--ink);background:var(--surface-2)}
+  .icon-btn.danger:hover{color:var(--danger)}
+  .empty{border:1px dashed var(--hairline-strong);border-radius:var(--r-lg);padding:56px 24px;text-align:center;color:var(--ink-subtle);font-size:14px}
+  .empty .btn{margin-top:16px}
+
+  /* ── Admin ────────────────────────────────────────────────── */
+  .lock{max-width:400px;margin:96px auto;text-align:center}
+  .lock .card{padding:32px}
+  .lock h2{margin-bottom:8px}
+  .lock p{color:var(--ink-subtle);font-size:14px;margin-bottom:24px}
+  .lock .input{text-align:center;margin-bottom:12px}
+  .lock-error{color:var(--danger);font-size:13px;margin-top:10px;min-height:18px}
+  .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  .admin-grid .card h3{margin-bottom:6px}
+  .admin-grid .card>.caption{display:block;margin-bottom:20px}
+  .row{display:flex;gap:10px}
+  .row .input{flex:1}
+  .filedrop{border:1px dashed var(--hairline-strong);border-radius:var(--r-md);padding:22px;text-align:center;color:var(--ink-subtle);font-size:14px;cursor:pointer;transition:border-color .15s,background .15s}
+  .filedrop:hover{border-color:var(--ink-tertiary);background:var(--surface-2)}
+  .style-list{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+  .style-row{background:var(--surface-2);border:1px solid var(--hairline);border-radius:var(--r-md);padding:14px 16px}
+  .style-row .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .style-row h4{font-size:15px;font-weight:500}
+
+  /* ── Toast / footer ───────────────────────────────────────── */
+  .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface-3);border:1px solid var(--hairline-strong);color:var(--ink);font-size:14px;padding:10px 18px;border-radius:var(--r-md);transition:transform .25s ease;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  footer{border-top:1px solid var(--hairline);padding:40px 0;color:var(--ink-subtle);font-size:12px}
+  footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+  @media(max-width:1024px){.grid,.gallery-grid{grid-template-columns:repeat(2,1fr)}.create-grid{grid-template-columns:1fr}.admin-grid{grid-template-columns:1fr}}
+  @media(max-width:720px){
+    .wrap{padding:0 20px}
+    .grid,.gallery-grid{grid-template-columns:1fr}
+    .display-lg{font-size:36px;letter-spacing:-1px}
+    .nav-links{overflow-x:auto}
+    .api-badge span:last-child{display:none}
+    .section-head{flex-direction:column;gap:6px}.section-head .caption{text-align:left}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wrap">
+    <a href="#home" class="brand"><span class="brand-mark">i</span> Illustro</a>
+    <div class="nav-links">
+      <a href="#home" data-nav="home">Home</a>
+      <a href="#create" data-nav="create">Create</a>
+      <a href="#gallery" data-nav="gallery">Gallery</a>
+      <a href="#admin" data-nav="admin">Admin</a>
+    </div>
+    <div class="api-badge" id="apiBadge"><span class="dot"></span><span id="apiBadgeText">API key needed</span></div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ══ HOME ══════════════════════════════════════════════════ -->
+  <div class="page" id="page-home">
+    <div class="wrap">
+      <div class="hero">
+        <div class="eyebrow">Illustration studio</div>
+        <h1 class="display-lg">On-brand illustrations,<br>from a text prompt.</h1>
+        <p class="body-lg">Pick a style — or teach Illustro your own with a few reference illustrations — then describe any scene. It generates matching artwork in seconds.</p>
+        <div class="hero-actions">
+          <a href="#create" class="btn btn-primary">Start creating</a>
+          <a href="#admin" class="btn btn-secondary">Upload your style</a>
+        </div>
+      </div>
+
+      <section>
+        <div class="section-head">
+          <h2 class="headline">Public style library</h2>
+          <span class="caption">Well-known illustration languages, recreated from written style descriptions — no brand assets are stored or shipped.</span>
+        </div>
+        <div class="grid" id="presetGrid"></div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2 class="headline">Your styles</h2>
+          <span class="caption">Styles trained from reference illustrations you upload in Admin.</span>
+        </div>
+        <div id="customStyles"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ══ CREATE ════════════════════════════════════════════════ -->
+  <div class="page" id="page-create">
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:32px">
+        <h1 class="display-md">Create</h1>
+      </div>
+      <div class="create-grid">
+        <div class="card">
+          <div class="notice hidden" id="keyNotice">
+            <span>🔑</span>
+            <span>No API key set. Add your free Gemini key on the <a href="#admin">Admin page</a> to start generating.</span>
+          </div>
+          <div class="field">
+            <label for="styleSelect">Style</label>
+            <select class="select" id="styleSelect"></select>
+            <div class="caption" id="styleHint" style="margin-top:8px"></div>
+          </div>
+          <div class="field">
+            <label for="promptInput">Describe the scene</label>
+            <textarea class="textarea" id="promptInput" placeholder="e.g. Two colleagues reviewing charts on a laptop in a bright office"></textarea>
+            <div class="chips">
+              <span class="chip">People dining at a restaurant</span>
+              <span class="chip">Person paying with a credit card</span>
+              <span class="chip">Team celebrating a launch</span>
+              <span class="chip">Customer support conversation</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="aspectSelect">Aspect ratio</label>
+            <select class="select" id="aspectSelect">
+              <option value="1:1">Square — 1:1</option>
+              <option value="16:9">Wide — 16:9</option>
+              <option value="4:3">Landscape — 4:3</option>
+              <option value="3:4">Portrait — 3:4</option>
+              <option value="9:16">Tall — 9:16</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="generateBtn" style="width:100%">Generate illustration</button>
+        </div>
+
+        <div class="output">
+          <div class="notice error hidden" id="genError"></div>
+          <div class="output-stage" id="outputStage">
+            <div class="placeholder" id="outputPlaceholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#62666d" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.5-3.5a2 2 0 0 0-2.8 0L6 21"/></svg>
+              Your illustration will appear here. Pick a style, describe a scene, and hit Generate.
+            </div>
+          </div>
+          <div class="output-actions hidden" id="outputActions">
+            <button class="btn btn-ghost" id="regenBtn">Regenerate</button>
+            <button class="btn btn-secondary" id="downloadBtn">Download PNG</button>
+            <button class="btn btn-primary" id="saveBtn">Save to gallery</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GALLERY ═══════════════════════════════════════════════ -->
+  <div class="page" id="page-gallery">
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:32px">
+        <h1 class="display-md">Gallery</h1>
+        <span class="caption" id="galleryCount"></span>
+      </div>
+      <div id="galleryContent"></div>
+    </div>
+  </div>
+
+  <!-- ══ ADMIN ═════════════════════════════════════════════════ -->
+  <div class="page" id="page-admin">
+    <div class="wrap">
+      <!-- lock screen -->
+      <div class="lock" id="adminLock">
+        <div class="card">
+          <h2 class="headline">Admin access</h2>
+          <p>Enter the admin password to manage the API key and reference styles.</p>
+          <input type="password" class="input" id="adminPass" placeholder="Password" autocomplete="off">
+          <button class="btn btn-primary" id="unlockBtn" style="width:100%">Unlock</button>
+          <div class="lock-error" id="lockError"></div>
+        </div>
+      </div>
+
+      <!-- unlocked content -->
+      <div class="hidden" id="adminContent">
+        <div class="section-head" style="margin-bottom:32px">
+          <h1 class="display-md">Admin</h1>
+          <button class="btn btn-ghost" id="lockAgainBtn">Lock</button>
+        </div>
+        <div class="admin-grid">
+          <div class="card">
+            <h3 class="card-title">Gemini API key</h3>
+            <span class="caption">Create a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="text-decoration:underline;text-underline-offset:3px;color:var(--ink-muted)">aistudio.google.com/apikey</a> — no credit card, ~500 images/day free. Stored only in this browser.</span>
+            <div class="row">
+              <input type="password" class="input" id="apiKeyInput" placeholder="AIza…" autocomplete="off">
+              <button class="btn btn-secondary" id="saveKeyBtn">Save</button>
+              <button class="btn btn-secondary" id="testKeyBtn">Test</button>
+            </div>
+            <div class="caption" id="keyStatus" style="margin-top:12px"></div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title">Add a style</h3>
+            <span class="caption">Upload 3–8 of your reference illustrations. They're sent along with every prompt so generations match your art direction.</span>
+            <div class="field">
+              <label for="newStyleName">Style name</label>
+              <input class="input" id="newStyleName" placeholder="e.g. MX Blue">
+            </div>
+            <div class="field">
+              <label for="newStyleNotes">Style notes <span style="text-transform:none;color:var(--ink-tertiary)">(optional)</span></label>
+              <textarea class="textarea" id="newStyleNotes" style="min-height:70px" placeholder="Palette, line weight, character rules, do's and don'ts…"></textarea>
+            </div>
+            <div class="field">
+              <label>Reference illustrations</label>
+              <div class="filedrop" id="fileDrop">Click to choose images (PNG / JPG / WebP)</div>
+              <input type="file" id="refInput" accept="image/*" multiple class="hidden">
+              <div class="ref-strip" id="refPreview" style="margin-top:10px"></div>
+            </div>
+            <button class="btn btn-primary" id="saveStyleBtn" style="width:100%">Save style</button>
+          </div>
+        </div>
+
+        <section>
+          <div class="section-head">
+            <h2 class="headline">Saved styles</h2>
+          </div>
+          <div id="adminStyles"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Illustro — a text-to-illustration studio. Built as a personal MVP.</span>
+    <span>Images are generated with Gemini and stored locally in your browser.</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   Illustro — single-file MVP
+   - Admin password: change ADMIN_PASSWORD below before sharing.
+   - API key: stored in localStorage, only in this browser.
+   - Styles & gallery: stored in IndexedDB, only in this browser.
+═══════════════════════════════════════════════════════════════ */
+const ADMIN_PASSWORD = 'illustro@2026';           // ← change me
+const LS_API_KEY     = 'illustro.apiKey';
+const SS_UNLOCKED    = 'illustro.adminUnlocked';
+const MODELS         = ['gemini-2.5-flash-image','gemini-2.5-flash-image-preview'];
+const API_BASE       = 'https://generativelanguage.googleapis.com/v1beta/models/';
+
+/* ── Preset public styles (text style-cards only, no brand assets) ── */
+const PRESETS = [
+  { id:'p-google', name:'Google', tagline:'Flat geometric shapes, primary-color accents, friendly and minimal.',
+    palette:['#4285F4','#EA4335','#FBBC05','#34A853'],
+    card:'Google-style flat vector illustration: clean simple geometric shapes, smooth rounded forms, minimal facial features (dot eyes, simple line mouths), a white or very light background, accents in Google primary colors (blue #4285F4, red #EA4335, yellow #FBBC05, green #34A853) balanced with soft grays, subtle flat layering for depth, generous negative space, optimistic and friendly tone.' },
+  { id:'p-microsoft', name:'Microsoft', tagline:'Fluent style — soft dimensional forms, purple-blue palette.',
+    palette:['#7719AA','#0078D4','#50E6FF','#243A5E'],
+    card:'Microsoft Fluent-style illustration: softly dimensional semi-3D shapes with smooth gradients, palette of purples (#7719AA), blues (#0078D4), cyan (#50E6FF) and deep navy (#243A5E), rounded characters with simplified faces, gentle drop shadows, clean modern productivity-software feel, light background.' },
+  { id:'p-linkedin', name:'LinkedIn', tagline:'Warm editorial characters, deep blue with amber accents.',
+    palette:['#0A66C2','#E7A33E','#F5987E','#004182'],
+    card:'LinkedIn-style editorial illustration: warm approachable human characters with realistic proportions and diverse skin tones, textured grainy shading, deep professional blue (#0A66C2, #004182) balanced by warm amber (#E7A33E) and soft coral (#F5987E), professional workplace settings, hand-crafted editorial feel, cream or light-blue backgrounds.' },
+  { id:'p-swiggy', name:'Swiggy', tagline:'Playful food-tech energy, bold orange, chunky characters.',
+    palette:['#FC8019','#FFDBB0','#3D4152','#60B246'],
+    card:'Swiggy-style playful illustration: bold saturated orange (#FC8019) as the hero color with cream (#FFDBB0), charcoal (#3D4152) and fresh green (#60B246) accents, chunky rounded cartoon characters with big simple shapes, food and delivery motifs, high energy and humor, flat shapes with soft minimal shadows.' },
+  { id:'p-airbnb', name:'Airbnb', tagline:'Handcrafted lifestyle scenes, coral warmth, human moments.',
+    palette:['#FF5A5F','#FFB4B7','#00A699','#484848'],
+    card:'Airbnb-style illustration: warm handcrafted lifestyle scenes of travel and belonging, coral pink (#FF5A5F, #FFB4B7) with teal (#00A699) and warm neutral accents, soft organic shapes, painterly texture, cozy interiors and human connection, gentle realistic proportions, inviting and personal tone.' },
+  { id:'p-notion', name:'Notion', tagline:'Loose black-and-white ink doodles, vintage cartoon charm.',
+    palette:['#000000','#787774','#D3D1CB','#FFFFFF'],
+    card:'Notion-style black-and-white ink illustration: loose expressive hand-drawn line art in black ink on a white background, vintage 1930s-cartoon influence, cross-hatching and squiggly linework, exaggerated cheerful characters, no color except black and white with occasional gray wash, whimsical and clever.' },
+];
+
+/* ── tiny helpers ── */
+const $  = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let toastTimer;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2600); }
+
+/* ── IndexedDB ── */
+let _db;
+function db(){ return _db ? Promise.resolve(_db) : new Promise((res,rej)=>{
+  const r = indexedDB.open('illustro', 1);
+  r.onupgradeneeded = e => { const d=e.target.result;
+    if(!d.objectStoreNames.contains('styles'))  d.createObjectStore('styles',{keyPath:'id'});
+    if(!d.objectStoreNames.contains('gallery')) d.createObjectStore('gallery',{keyPath:'id'});
+  };
+  r.onsuccess = ()=>{ _db=r.result; res(_db); };
+  r.onerror   = ()=>rej(r.error);
+});}
+async function idbAll(store){ const d=await db(); return new Promise((res,rej)=>{ const r=d.transaction(store).objectStore(store).getAll(); r.onsuccess=()=>res(r.result||[]); r.onerror=()=>rej(r.error); });}
+async function idbPut(store,val){ const d=await db(); return new Promise((res,rej)=>{ const t=d.transaction(store,'readwrite'); t.objectStore(store).put(val); t.oncomplete=res; t.onerror=()=>rej(t.error); });}
+async function idbDel(store,key){ const d=await db(); return new Promise((res,rej)=>{ const t=d.transaction(store,'readwrite'); t.objectStore(store).delete(key); t.oncomplete=res; t.onerror=()=>rej(t.error); });}
+
+/* ── image utils ── */
+function fileToDataUrl(file, max=1024){ return new Promise((res,rej)=>{
+  const img=new Image();
+  img.onload=()=>{ const s=Math.min(1, max/Math.max(img.width,img.height));
+    const c=document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    URL.revokeObjectURL(img.src);
+    let url=c.toDataURL('image/webp',0.9);
+    if(!url.startsWith('data:image/webp')) url=c.toDataURL('image/png');   /* Safari fallback */
+    res(url);
+  };
+  img.onerror=()=>rej(new Error('Could not read image'));
+  img.src=URL.createObjectURL(file);
+});}
+function dataUrlToInline(dataUrl){
+  const mime = dataUrl.substring(5, dataUrl.indexOf(';'));
+  return { inlineData: { mimeType: mime, data: dataUrl.split(',')[1] } };
+}
+
+/* ── state ── */
+let customStyles = [];          // from IndexedDB
+let lastResult   = null;        // { img, prompt, styleName }
+let pendingRefs  = [];          // dataUrls staged in admin form
+
+function allStyles(){ return [...customStyles.map(s=>({...s, custom:true})), ...PRESETS]; }
+function getStyle(id){ return allStyles().find(s=>s.id===id); }
+
+/* ── routing ── */
+const PAGES=['home','create','gallery','admin'];
+function route(){
+  let h=(location.hash||'#home').slice(1).split('?')[0];
+  if(!PAGES.includes(h)) h='home';
+  PAGES.forEach(p=>{
+    document.getElementById('page-'+p).classList.toggle('active', p===h);
+    document.querySelectorAll('[data-nav="'+p+'"]').forEach(a=>a.classList.toggle('active', p===h));
+  });
+  if(h==='gallery') renderGallery();
+  if(h==='admin')   renderAdmin();
+  if(h==='create')  refreshKeyNotice();
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange', route);
+
+/* ── API badge ── */
+function refreshApiBadge(){
+  const has=!!localStorage.getItem(LS_API_KEY);
+  $('#apiBadge').classList.toggle('on', has);
+  $('#apiBadgeText').textContent = has ? 'API connected' : 'API key needed';
+}
+function refreshKeyNotice(){ $('#keyNotice').classList.toggle('hidden', !!localStorage.getItem(LS_API_KEY)); }
+
+/* ── HOME ── */
+function paletteHtml(colors){ return '<div class="palette">'+colors.map(c=>`<span style="background:${c}"></span>`).join('')+'</div>'; }
+function renderHome(){
+  $('#presetGrid').innerHTML = PRESETS.map(p=>`
+    <div class="card style-card" data-style="${p.id}">
+      ${paletteHtml(p.palette)}
+      <h3>${esc(p.name)}</h3>
+      <div class="tagline">${esc(p.tagline)}</div>
+      <div class="use">Use this style →</div>
+    </div>`).join('');
+  const el=$('#customStyles');
+  if(!customStyles.length){
+    el.innerHTML = `<div class="empty">No custom styles yet. Upload your reference illustrations on the Admin page to create one.<br><a href="#admin" class="btn btn-secondary">Go to Admin</a></div>`;
+  } else {
+    el.innerHTML = '<div class="grid">'+customStyles.map(s=>`
+      <div class="card style-card" data-style="${s.id}">
+        <div class="ref-strip">${s.refs.slice(0,5).map(r=>`<img src="${r}" alt="">`).join('')}</div>
+        <h3>${esc(s.name)}</h3>
+        <div class="tagline">${s.refs.length} reference illustration${s.refs.length===1?'':'s'}${s.notes?' · '+esc(s.notes.slice(0,60)):''}</div>
+        <div class="use">Use this style →</div>
+      </div>`).join('')+'</div>';
+  }
+  document.querySelectorAll('.style-card').forEach(c=>c.onclick=()=>{
+    location.hash='create'; $('#styleSelect').value=c.dataset.style; styleChanged();
+  });
+}
+
+/* ── CREATE ── */
+function renderStyleSelect(){
+  const sel=$('#styleSelect'); const cur=sel.value;
+  let html='';
+  if(customStyles.length) html+='<optgroup label="Your styles">'+customStyles.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')+'</optgroup>';
+  html+='<optgroup label="Public library">'+PRESETS.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')+'</optgroup>';
+  sel.innerHTML=html;
+  if(cur && getStyle(cur)) sel.value=cur;
+  styleChanged();
+}
+function styleChanged(){
+  const s=getStyle($('#styleSelect').value);
+  $('#styleHint').textContent = !s ? '' : s.custom
+    ? `Generates using your ${s.refs.length} uploaded reference illustration${s.refs.length===1?'':'s'}.`
+    : 'Generates from a written description of this public style.';
+}
+function buildParts(style, prompt, aspect){
+  const parts=[];
+  const lines=['Create exactly one high-quality digital illustration.'];
+  if(style.custom && style.refs?.length){
+    style.refs.slice(0,8).forEach(r=>parts.push(dataUrlToInline(r)));
+    lines.push('The attached images are style references. Match their art direction exactly — color palette, line weight, character proportions, shading, texture, background treatment and level of detail. Do not copy their content or composition; only replicate the visual style.');
+    if(style.notes) lines.push('Additional style notes: '+style.notes);
+  } else {
+    lines.push('Style: '+style.card);
+  }
+  lines.push('Scene to illustrate: '+prompt);
+  if(aspect && aspect!=='1:1') lines.push(`Compose the image in a ${aspect} aspect ratio.`);
+  lines.push('Rules: no text, no words, no letters, no watermarks, no logos, no signatures anywhere in the image. Clean, balanced composition.');
+  parts.push({text: lines.join('\n\n')});
+  return parts;
+}
+async function callGemini(parts, aspect){
+  const key=localStorage.getItem(LS_API_KEY);
+  if(!key) throw new Error('No API key set. Add your free Gemini key on the Admin page.');
+  let lastErr=null;
+  for(const model of MODELS){
+    const attempts = (aspect && aspect!=='1:1') ? [aspect, null] : [null];
+    for(const asp of attempts){
+      const body={ contents:[{parts}], generationConfig:{ responseModalities:['TEXT','IMAGE'] } };
+      if(asp) body.generationConfig.imageConfig={ aspectRatio: asp };
+      let resp;
+      try{
+        resp=await fetch(API_BASE+model+':generateContent',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','x-goog-api-key':key},
+          body:JSON.stringify(body)
+        });
+      }catch(e){ throw new Error('Network error — check your internet connection.'); }
+      if(resp.ok){
+        const data=await resp.json();
+        const part=(data.candidates?.[0]?.content?.parts||[]).find(p=>p.inlineData);
+        if(part) return `data:${part.inlineData.mimeType||'image/png'};base64,${part.inlineData.data}`;
+        const blocked=data.candidates?.[0]?.finishReason || data.promptFeedback?.blockReason;
+        lastErr=new Error(blocked==='PROHIBITED_CONTENT'||data.promptFeedback?.blockReason
+          ? 'The prompt was blocked by safety filters — try rephrasing it.'
+          : 'The model returned no image — try rephrasing the prompt.');
+        continue;
+      }
+      const errText=await resp.text();
+      if(resp.status===404){ lastErr=new Error('Model unavailable, trying fallback…'); break; }
+      if(resp.status===429) throw new Error('Rate limit or free-tier quota reached (~500 images/day). Wait a bit and try again.');
+      if((resp.status===400||resp.status===403) && /api[ _]?key/i.test(errText)) throw new Error('The API key looks invalid — re-check it on the Admin page.');
+      if(resp.status===400 && asp && /imageConfig|aspect|Unknown name/i.test(errText)){ lastErr=new Error(errText); continue; }
+      throw new Error('Generation failed ('+resp.status+'). '+errText.slice(0,180));
+    }
+  }
+  throw lastErr || new Error('Generation failed — please try again.');
+}
+async function generate(){
+  const style=getStyle($('#styleSelect').value);
+  const prompt=$('#promptInput').value.trim();
+  const aspect=$('#aspectSelect').value;
+  const errBox=$('#genError');
+  errBox.classList.add('hidden');
+  if(!style) return toast('Pick a style first');
+  if(!prompt) return toast('Describe the scene you want');
+  if(!localStorage.getItem(LS_API_KEY)){ errBox.textContent='No API key set — add your free Gemini key on the Admin page.'; errBox.classList.remove('hidden'); return; }
+  const btn=$('#generateBtn');
+  btn.disabled=true; btn.textContent='Generating…';
+  $('#outputActions').classList.add('hidden');
+  $('#outputStage').innerHTML='<div class="placeholder"><div class="spinner"></div>Generating your illustration…<br><span class="caption">usually 10–30 seconds</span></div>';
+  try{
+    const img=await callGemini(buildParts(style,prompt,aspect), aspect);
+    lastResult={ img, prompt, styleName: style.name };
+    $('#outputStage').innerHTML=`<img src="${img}" alt="Generated illustration">`;
+    $('#outputActions').classList.remove('hidden');
+  }catch(e){
+    $('#outputStage').innerHTML='<div class="placeholder">Generation failed.</div>';
+    errBox.textContent=e.message; errBox.classList.remove('hidden');
+  }finally{
+    btn.disabled=false; btn.textContent='Generate illustration';
+  }
+}
+function downloadResult(){
+  if(!lastResult) return;
+  const a=document.createElement('a');
+  a.href=lastResult.img;
+  a.download='illustro-'+Date.now()+'.png';
+  a.click();
+}
+async function saveResult(){
+  if(!lastResult) return;
+  await idbPut('gallery',{ id:'g_'+Date.now(), ...lastResult, createdAt: Date.now() });
+  toast('Saved to gallery');
+}
+
+/* ── GALLERY ── */
+async function renderGallery(){
+  const items=(await idbAll('gallery')).sort((a,b)=>b.createdAt-a.createdAt);
+  $('#galleryCount').textContent = items.length ? items.length+' saved illustration'+(items.length===1?'':'s') : '';
+  const el=$('#galleryContent');
+  if(!items.length){
+    el.innerHTML=`<div class="empty">Nothing saved yet. Generate an illustration and hit “Save to gallery”.<br><a href="#create" class="btn btn-secondary">Go to Create</a></div>`;
+    return;
+  }
+  el.innerHTML='<div class="gallery-grid">'+items.map(it=>`
+    <div class="g-card">
+      <img src="${it.img}" alt="${esc(it.prompt)}" loading="lazy">
+      <div class="g-meta">
+        <div class="prompt">${esc(it.prompt)}</div>
+        <div class="g-foot">
+          <span class="badge">${esc(it.styleName)}</span>
+          <span style="display:flex;gap:2px">
+            <button class="icon-btn" title="Download" data-dl="${it.id}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg></button>
+            <button class="icon-btn danger" title="Delete" data-del="${it.id}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+          </span>
+        </div>
+      </div>
+    </div>`).join('')+'</div>';
+  el.querySelectorAll('[data-dl]').forEach(b=>b.onclick=()=>{
+    const it=items.find(i=>i.id===b.dataset.dl);
+    const a=document.createElement('a'); a.href=it.img; a.download='illustro-'+it.id+'.png'; a.click();
+  });
+  el.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+    await idbDel('gallery', b.dataset.del); renderGallery(); toast('Deleted');
+  });
+}
+
+/* ── ADMIN ── */
+function renderAdmin(){
+  const unlocked=sessionStorage.getItem(SS_UNLOCKED)==='1';
+  $('#adminLock').classList.toggle('hidden', unlocked);
+  $('#adminContent').classList.toggle('hidden', !unlocked);
+  if(!unlocked){ $('#adminPass').value=''; $('#lockError').textContent=''; return; }
+  $('#apiKeyInput').value=localStorage.getItem(LS_API_KEY)||'';
+  renderAdminStyles();
+}
+function unlock(){
+  if($('#adminPass').value===ADMIN_PASSWORD){
+    sessionStorage.setItem(SS_UNLOCKED,'1'); renderAdmin();
+  } else {
+    $('#lockError').textContent='Wrong password.';
+  }
+}
+function renderAdminStyles(){
+  const el=$('#adminStyles');
+  if(!customStyles.length){ el.innerHTML='<div class="empty">No styles saved yet — add one above.</div>'; return; }
+  el.innerHTML='<div class="style-list">'+customStyles.map(s=>`
+    <div class="style-row">
+      <div class="top">
+        <h4>${esc(s.name)} <span class="caption" style="font-weight:400">· ${s.refs.length} reference${s.refs.length===1?'':'s'}</span></h4>
+        <button class="btn btn-danger" data-delstyle="${s.id}">Delete</button>
+      </div>
+      ${s.notes?`<div class="body-sm" style="color:var(--ink-subtle);margin-bottom:10px">${esc(s.notes)}</div>`:''}
+      <div class="ref-strip">${s.refs.map(r=>`<img src="${r}" alt="">`).join('')}</div>
+    </div>`).join('')+'</div>';
+  el.querySelectorAll('[data-delstyle]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Delete this style and its reference images?')) return;
+    await idbDel('styles', b.dataset.delstyle);
+    await loadStyles(); renderAdminStyles(); renderHome(); renderStyleSelect(); toast('Style deleted');
+  });
+}
+async function saveStyle(){
+  const name=$('#newStyleName').value.trim();
+  if(!name) return toast('Give the style a name');
+  if(!pendingRefs.length) return toast('Add at least one reference illustration');
+  await idbPut('styles',{ id:'cs_'+Date.now(), name, notes:$('#newStyleNotes').value.trim(), refs:pendingRefs, createdAt:Date.now() });
+  pendingRefs=[]; $('#refPreview').innerHTML=''; $('#newStyleName').value=''; $('#newStyleNotes').value=''; $('#refInput').value='';
+  $('#fileDrop').textContent='Click to choose images (PNG / JPG / WebP)';
+  await loadStyles(); renderAdminStyles(); renderHome(); renderStyleSelect();
+  toast('Style saved — it\'s now available in Create');
+}
+async function testKey(){
+  const key=$('#apiKeyInput').value.trim()||localStorage.getItem(LS_API_KEY);
+  const st=$('#keyStatus');
+  if(!key){ st.textContent='Enter a key first.'; return; }
+  st.textContent='Testing…';
+  try{
+    const r=await fetch(API_BASE.replace(/\/$/,'')+'?pageSize=1',{headers:{'x-goog-api-key':key}});
+    st.textContent = r.ok ? '✓ Key works.' : '✗ Key rejected ('+r.status+') — check it in AI Studio.';
+    st.style.color = r.ok ? 'var(--success)' : 'var(--danger)';
+  }catch(e){ st.textContent='✗ Network error while testing.'; st.style.color='var(--danger)'; }
+}
+
+/* ── boot ── */
+async function loadStyles(){ customStyles=(await idbAll('styles')).sort((a,b)=>b.createdAt-a.createdAt); }
+(async function init(){
+  await loadStyles();
+  renderHome(); renderStyleSelect(); refreshApiBadge(); refreshKeyNotice();
+  route();
+
+  $('#styleSelect').addEventListener('change', styleChanged);
+  $('#generateBtn').addEventListener('click', generate);
+  $('#regenBtn').addEventListener('click', generate);
+  $('#downloadBtn').addEventListener('click', downloadResult);
+  $('#saveBtn').addEventListener('click', saveResult);
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ $('#promptInput').value=c.textContent; });
+
+  $('#unlockBtn').addEventListener('click', unlock);
+  $('#adminPass').addEventListener('keydown', e=>{ if(e.key==='Enter') unlock(); });
+  $('#lockAgainBtn').addEventListener('click', ()=>{ sessionStorage.removeItem(SS_UNLOCKED); renderAdmin(); });
+
+  $('#saveKeyBtn').addEventListener('click', ()=>{
+    const v=$('#apiKeyInput').value.trim();
+    if(v) localStorage.setItem(LS_API_KEY, v); else localStorage.removeItem(LS_API_KEY);
+    refreshApiBadge(); refreshKeyNotice();
+    $('#keyStatus').textContent = v ? 'Saved to this browser.' : 'Key removed.';
+    $('#keyStatus').style.color='var(--ink-subtle)';
+    toast(v ? 'API key saved' : 'API key removed');
+  });
+  $('#testKeyBtn').addEventListener('click', testKey);
+
+  $('#fileDrop').addEventListener('click', ()=>$('#refInput').click());
+  $('#refInput').addEventListener('change', async e=>{
+    const files=[...e.target.files];
+    if(!files.length) return;
+    $('#fileDrop').textContent='Processing…';
+    for(const f of files){
+      try{ pendingRefs.push(await fileToDataUrl(f)); }catch(_){ toast('Skipped an unreadable file'); }
+    }
+    $('#fileDrop').textContent=pendingRefs.length+' image'+(pendingRefs.length===1?'':'s')+' ready — click to add more';
+    $('#refPreview').innerHTML=pendingRefs.map(r=>`<img src="${r}" alt="">`).join('');
+  });
+  $('#saveStyleBtn').addEventListener('click', saveStyle);
+})();
+</script>
+</body>
+</html>
