@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accessibility, by Example</title>
+<meta name="description" content="A component-by-component guide to accessible UI design, for designers — buttons, modals and tables, taught through live good-vs-bad examples.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ DESIGN TOKENS (adapted from Cursor design system) ============ */
+:root{
+  --primary:#f54e00;
+  --primary-active:#d04200;
+  --ink:#26251e;
+  --body:#5a5852;
+  --body-strong:#26251e;
+  --muted:#807d72;
+  --muted-soft:#a09c92;
+  --hairline:#e6e5e0;
+  --hairline-soft:#efeee8;
+  --hairline-strong:#cfcdc4;
+  --canvas:#f7f7f4;
+  --canvas-soft:#fafaf7;
+  --surface-card:#ffffff;
+  --surface-strong:#e6e5e0;
+  --on-primary:#ffffff;
+  --success:#1f8a65;
+  --success-soft:#e4f3ec;
+  --error:#cf2d56;
+  --error-soft:#fbe9ed;
+  --focus-ring:#2f6fed;
+
+  --font-display:'Inter', system-ui, -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-code:'JetBrains Mono', 'Fira Code', monospace;
+
+  --radius-xs:4px; --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px; --radius-pill:9999px;
+
+  --sp-xxs:4px; --sp-xs:8px; --sp-sm:12px; --sp-base:16px; --sp-md:20px; --sp-lg:24px; --sp-xl:32px; --sp-xxl:48px; --sp-section:80px;
+
+  --sidebar-w:272px;
+  color-scheme: light;
+}
+
+[data-theme="dark"]{
+  --ink:#f2f1ea;
+  --body:#c9c6bb;
+  --body-strong:#f7f6f0;
+  --muted:#9f9c92;
+  --muted-soft:#726f66;
+  --hairline:#3a382f;
+  --hairline-soft:#302e26;
+  --hairline-strong:#4a4739;
+  --canvas:#1c1b16;
+  --canvas-soft:#211f19;
+  --surface-card:#252319;
+  --surface-strong:#332f22;
+  --on-primary:#ffffff;
+  --success:#4fc797;
+  --success-soft:#173328;
+  --error:#ff6b8a;
+  --error-soft:#3a1620;
+  --focus-ring:#7fa8ff;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#f2f1ea; --body:#c9c6bb; --body-strong:#f7f6f0; --muted:#9f9c92; --muted-soft:#726f66;
+    --hairline:#3a382f; --hairline-soft:#302e26; --hairline-strong:#4a4739;
+    --canvas:#1c1b16; --canvas-soft:#211f19; --surface-card:#252319; --surface-strong:#332f22;
+    --success:#4fc797; --success-soft:#173328; --error:#ff6b8a; --error-soft:#3a1620; --focus-ring:#7fa8ff;
+    color-scheme: dark;
+  }
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:var(--font-display);
+  background:var(--canvas);
+  color:var(--body);
+  font-size:16px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{color:var(--ink); font-weight:600; margin:0 0 var(--sp-xs);}
+h1{font-size:34px; font-weight:400; letter-spacing:-0.5px; line-height:1.15;}
+h2{font-size:24px; font-weight:400; letter-spacing:-0.3px;}
+h3{font-size:18px; font-weight:600;}
+p{margin:0 0 var(--sp-base);}
+a{color:var(--primary);}
+code, .code{font-family:var(--font-code); font-size:13px; background:var(--surface-strong); padding:1px 6px; border-radius:var(--radius-xs); color:var(--body-strong);}
+
+/* focus visibility used throughout the site itself */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible, input:focus-visible, [href]:focus-visible, summary:focus-visible{
+  outline:3px solid var(--focus-ring);
+  outline-offset:2px;
+  border-radius:var(--radius-xs);
+}
+.skip-link{
+  position:absolute; left:-999px; top:auto;
+  background:var(--ink); color:var(--canvas); padding:12px 20px; border-radius:var(--radius-md);
+  z-index:1000; font-weight:600;
+}
+.skip-link:focus{ left:16px; top:16px; }
+
+/* ============ SHELL LAYOUT ============ */
+.app-shell{ display:flex; min-height:100vh; }
+
+.sidebar{
+  width:var(--sidebar-w);
+  flex-shrink:0;
+  background:var(--canvas);
+  border-right:1px solid var(--hairline);
+  padding:var(--sp-lg) var(--sp-base);
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+  display:flex; flex-direction:column;
+}
+.brand{
+  display:flex; align-items:center; gap:10px;
+  padding:6px 8px var(--sp-lg);
+  text-decoration:none;
+}
+.brand-mark{
+  width:30px; height:30px; border-radius:var(--radius-sm);
+  background:var(--primary); color:var(--on-primary);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:15px; flex-shrink:0;
+}
+.brand-text{ font-size:15px; font-weight:600; color:var(--ink); line-height:1.2; }
+.brand-text span{ display:block; font-size:11px; font-weight:500; color:var(--muted); letter-spacing:0.02em; }
+
+.nav-group-label{
+  font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--muted); padding:var(--sp-md) var(--sp-sm) var(--sp-xxs);
+}
+.nav-list{ list-style:none; margin:0; padding:0; }
+.nav-link{
+  display:flex; align-items:center; gap:10px;
+  width:100%; text-align:left; background:none; border:none; cursor:pointer;
+  padding:10px 12px; border-radius:var(--radius-md);
+  font-family:var(--font-display); font-size:14px; font-weight:500; color:var(--body);
+  text-decoration:none;
+}
+.nav-link:hover{ background:var(--surface-strong); color:var(--ink); }
+.nav-link[aria-current="page"]{ background:var(--surface-card); color:var(--ink); box-shadow: inset 0 0 0 1px var(--hairline-strong); }
+.nav-link .dot{ width:6px; height:6px; border-radius:50%; background:var(--muted-soft); flex-shrink:0; }
+.nav-link[aria-current="page"] .dot{ background:var(--primary); }
+.nav-link.disabled{ color:var(--muted-soft); cursor:not-allowed; }
+.nav-link.disabled:hover{ background:none; }
+.soon-badge{ margin-left:auto; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted-soft); }
+
+.sidebar-footer{ margin-top:auto; padding-top:var(--sp-md); border-top:1px solid var(--hairline); }
+.theme-toggle{
+  display:flex; align-items:center; gap:8px; width:100%;
+  background:var(--surface-card); border:1px solid var(--hairline-strong); border-radius:var(--radius-md);
+  padding:9px 12px; font-family:var(--font-display); font-size:13px; font-weight:500; color:var(--ink); cursor:pointer;
+}
+
+.main{ flex:1; min-width:0; padding:var(--sp-xxl) var(--sp-xxl) 120px; max-width:920px; }
+@media (max-width: 900px){
+  .main{ padding:var(--sp-lg); }
+  .sidebar{ width:100%; height:auto; position:relative; border-right:none; border-bottom:1px solid var(--hairline); }
+  .app-shell{ flex-direction:column; }
+}
+
+.page{ display:none; }
+.page.active{ display:block; }
+
+.eyebrow{ font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--primary); margin-bottom:var(--sp-xs); }
+.page-header{ margin-bottom:var(--sp-xl); padding-bottom:var(--sp-lg); border-bottom:1px solid var(--hairline); }
+.page-intro{ font-size:17px; color:var(--body); max-width:68ch; }
+
+/* ============ TABS ============ */
+.tablist{ display:flex; gap:4px; margin-bottom:var(--sp-xl); border-bottom:1px solid var(--hairline); }
+.tab-btn{
+  background:none; border:none; cursor:pointer; font-family:var(--font-display);
+  font-size:15px; font-weight:600; color:var(--muted);
+  padding:10px 4px; margin-right:var(--sp-lg); border-bottom:2px solid transparent; margin-bottom:-1px;
+}
+.tab-btn[aria-selected="true"]{ color:var(--ink); border-bottom-color:var(--primary); }
+.tabpanel[hidden]{ display:none; }
+
+/* ============ CARDS / TOPICS ============ */
+.topic{ padding:var(--sp-xl) 0; border-bottom:1px solid var(--hairline); }
+.topic:last-child{ border-bottom:none; }
+.topic-head{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--sp-base); flex-wrap:wrap; }
+.principle{ font-size:16px; color:var(--body); max-width:66ch; }
+
+.kind-badge{
+  font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;
+  padding:3px 9px; border-radius:var(--radius-pill); flex-shrink:0; white-space:nowrap;
+}
+.kind-live{ background:var(--success-soft); color:var(--success); }
+.kind-annotated{ background:var(--surface-strong); color:var(--muted); }
+
+.demo-pair{ display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-base); margin:var(--sp-base) 0; }
+@media (max-width: 640px){ .demo-pair{ grid-template-columns:1fr; } }
+
+.demo{
+  background:var(--surface-card); border:1px solid var(--hairline); border-radius:var(--radius-lg);
+  padding:var(--sp-lg); display:flex; flex-direction:column; gap:var(--sp-sm); min-height:150px;
+}
+.demo.bad{ border-color:var(--error); border-width:1.5px; }
+.demo.good{ border-color:var(--success); border-width:1.5px; }
+.tag{ display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; width:fit-content; padding:4px 10px 4px 8px; border-radius:var(--radius-pill); }
+.tag-bad{ background:var(--error-soft); color:var(--error); }
+.tag-good{ background:var(--success-soft); color:var(--success); }
+.demo-stage{ flex:1; display:flex; align-items:center; justify-content:flex-start; flex-wrap:wrap; gap:10px; padding:var(--sp-sm) 0; }
+.demo-caption{ font-size:13px; color:var(--muted); }
+
+.sr-strip{
+  font-family:var(--font-code); font-size:12.5px; background:var(--canvas-soft);
+  border:1px dashed var(--hairline-strong); border-radius:var(--radius-sm);
+  padding:8px 10px; color:var(--body); min-height:34px; display:flex; align-items:center; gap:8px;
+}
+.sr-strip .icon{ flex-shrink:0; }
+.sr-strip .txt{ color:var(--body-strong); }
+.sr-strip.empty .txt{ color:var(--muted-soft); font-style:italic; }
+
+.try-it{
+  font-size:13.5px; color:var(--body); background:var(--canvas-soft);
+  border-left:3px solid var(--primary); padding:8px 12px; border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+}
+.try-it strong{ color:var(--ink); }
+
+details.handoff{ margin-top:var(--sp-sm); font-size:13.5px; }
+details.handoff summary{ cursor:pointer; color:var(--muted); font-weight:600; list-style:none; display:flex; align-items:center; gap:6px; }
+details.handoff summary::-webkit-details-marker{ display:none; }
+details.handoff summary::before{ content:"▸"; font-size:11px; color:var(--muted-soft); transition:transform .15s; }
+details.handoff[open] summary::before{ transform:rotate(90deg); }
+details.handoff .handoff-body{ padding:8px 0 0 17px; color:var(--body); }
+details.handoff code{ font-size:12px; }
+
+/* annotated do/dont mini mockups */
+.mock{ background:var(--canvas-soft); border-radius:var(--radius-md); padding:var(--sp-base); flex:1; position:relative; }
+.mock-row{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.mock-row:last-child{ margin-bottom:0; }
+.legend{ list-style:none; margin:var(--sp-sm) 0 0; padding:0; display:flex; flex-direction:column; gap:6px; }
+.legend li{ font-size:13px; color:var(--body); display:flex; gap:8px; }
+.badge-num{
+  flex-shrink:0; width:18px; height:18px; border-radius:50%; font-size:11px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; margin-top:1px;
+}
+.demo.bad .badge-num{ background:var(--error); color:#fff; }
+.demo.good .badge-num{ background:var(--success); color:#fff; }
+
+/* ============ BUTTON SPECIMENS used inside demos ============ */
+.btn{
+  font-family:var(--font-display); font-size:14px; font-weight:500; cursor:pointer;
+  border-radius:var(--radius-md); padding:10px 18px; height:40px; border:1px solid transparent;
+  display:inline-flex; align-items:center; gap:8px; line-height:1;
+}
+.btn-primary{ background:var(--primary); color:var(--on-primary); }
+.btn-primary:hover{ background:var(--primary-active); }
+.btn-secondary{ background:var(--surface-card); color:var(--ink); border-color:var(--hairline-strong); }
+.btn-ghost{ background:transparent; color:var(--ink); border-color:transparent; }
+.btn-danger{ background:var(--error); color:#fff; }
+.btn[disabled]{ opacity:.45; cursor:not-allowed; }
+.btn-icon{ width:40px; height:40px; padding:0; justify-content:center; background:var(--surface-card); color:var(--ink); border-color:var(--hairline-strong); }
+.btn-icon.no-outline:focus-visible{ outline:none !important; }
+.btn-sm{ height:32px; padding:6px 12px; font-size:13px; }
+.btn-toggle[aria-pressed="true"]{ background:var(--ink); color:var(--canvas); border-color:var(--ink); }
+.btn-toggle[aria-pressed="false"]{ background:var(--surface-card); color:var(--ink); border-color:var(--hairline-strong); }
+
+/* ============ TABLE SPECIMENS ============ */
+table.demo-table{ width:100%; border-collapse:collapse; font-size:13.5px; background:var(--surface-card); }
+table.demo-table caption{ text-align:left; font-size:12px; color:var(--muted); margin-bottom:6px; }
+table.demo-table th, table.demo-table td{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--hairline); }
+table.demo-table th{ font-weight:600; color:var(--ink); background:var(--canvas-soft); }
+table.demo-table th[aria-sort] button{ background:none; border:none; cursor:pointer; font:inherit; font-weight:600; color:var(--ink); display:flex; align-items:center; gap:4px; padding:0; }
+table.demo-table td.num{ text-align:right; font-variant-numeric:tabular-nums; }
+.row-actions{ display:flex; gap:6px; opacity:0; }
+tr:hover .row-actions, tr:focus-within .row-actions{ opacity:1; }
+.row-actions.always{ opacity:1; }
+
+/* ============ MODAL ============ */
+.modal-overlay{ position:fixed; inset:0; background:rgba(38,37,30,.5); display:none; align-items:center; justify-content:center; padding:24px; z-index:500; }
+.modal-overlay.open{ display:flex; }
+.modal-box{ background:var(--surface-card); border-radius:var(--radius-lg); max-width:480px; width:100%; max-height:80vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+.modal-box.wide{ max-width:680px; }
+.modal-head{ display:flex; align-items:center; justify-content:space-between; padding:var(--sp-lg); border-bottom:1px solid var(--hairline); }
+.modal-body{ padding:var(--sp-lg); overflow:auto; }
+.modal-foot{ padding:var(--sp-base) var(--sp-lg); border-top:1px solid var(--hairline); display:flex; justify-content:flex-end; gap:8px; }
+.modal-close{ background:none; border:none; cursor:pointer; font-size:20px; color:var(--muted); width:32px; height:32px; border-radius:var(--radius-sm); }
+.modal-close:hover{ background:var(--surface-strong); color:var(--ink); }
+.demo-note{ font-size:12.5px; color:var(--muted); margin-top:6px; }
+
+.field{ display:flex; flex-direction:column; gap:4px; margin-bottom:var(--sp-base); }
+.field label{ font-size:13px; font-weight:600; color:var(--ink); }
+.field input, .field select{ font-family:var(--font-display); font-size:14px; padding:9px 12px; border:1px solid var(--hairline-strong); border-radius:var(--radius-md); background:var(--surface-card); color:var(--ink); }
+.field .err{ font-size:12.5px; color:var(--error); }
+
+/* status pill / badge */
+.status-dot{ width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px; }
+.status-dot.green{ background:var(--success); } .status-dot.red{ background:var(--error); } .status-dot.amber{ background:#c08532; }
+.badge{ font-size:11px; font-weight:600; padding:3px 9px; border-radius:var(--radius-pill); display:inline-flex; align-items:center; }
+
+footer.site-footer{ margin-top:var(--sp-xxl); padding-top:var(--sp-lg); border-top:1px solid var(--hairline); font-size:13px; color:var(--muted); }
+
+.card-index{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--sp-base); margin-top:var(--sp-xl); }
+@media (max-width:720px){ .card-index{ grid-template-columns:1fr; } }
+.index-card{ background:var(--surface-card); border:1px solid var(--hairline); border-radius:var(--radius-lg); padding:var(--sp-lg); text-decoration:none; display:block; }
+.index-card:hover{ border-color:var(--hairline-strong); }
+.index-card h3{ margin-bottom:4px; }
+.index-card p{ font-size:13.5px; margin:0; color:var(--muted); }
+
+.visually-hidden{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<div class="app-shell">
+  <nav class="sidebar" aria-label="Component sections">
+    <a class="brand" href="#/intro" data-nav="intro">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span class="brand-text">Accessibility, by Example<span>a UX guide, not a dev spec</span></span>
+    </a>
+
+    <div class="nav-group-label" id="nav-group-components">Components</div>
+    <ul class="nav-list" aria-labelledby="nav-group-components">
+      <li><a class="nav-link" href="#/buttons" data-nav="buttons"><span class="dot" aria-hidden="true"></span>Buttons</a></li>
+      <li><a class="nav-link" href="#/modals" data-nav="modals"><span class="dot" aria-hidden="true"></span>Modals</a></li>
+      <li><a class="nav-link" href="#/tables" data-nav="tables"><span class="dot" aria-hidden="true"></span>Tables</a></li>
+    </ul>
+
+    <div class="nav-group-label">Coming soon</div>
+    <ul class="nav-list">
+      <li><span class="nav-link disabled" aria-disabled="true">Forms <span class="soon-badge">Soon</span></span></li>
+      <li><span class="nav-link disabled" aria-disabled="true">Tabs <span class="soon-badge">Soon</span></span></li>
+      <li><span class="nav-link disabled" aria-disabled="true">Toasts <span class="soon-badge">Soon</span></span></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false">
+        <span id="themeIcon" aria-hidden="true">◐</span>
+        <span id="themeLabel">Dark mode</span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="main" id="main-content">
+
+    <!-- ============ INTRO ============ -->
+    <section class="page active" id="page-intro" aria-labelledby="intro-h1">
+      <div class="page-header">
+        <p class="eyebrow">Welcome</p>
+        <h1 id="intro-h1">Accessibility, by example</h1>
+        <p class="page-intro">Most accessibility guidance is written for engineers — ARIA attributes, contrast ratios, code snippets. This is written for the person who decides what the button says, where the modal opens, and how the table is laid out. Every idea here is something you can feel with your own keyboard, not just read about.</p>
+      </div>
+
+      <h2 style="font-size:17px;">How each page works</h2>
+      <p>Every component has two views. <strong>The Component</strong> covers getting the thing itself right — its label, its focus state, its size. <strong>In Use</strong> covers what happens when that component is dropped into a real product screen — a table inside a modal, a nested table inside a row — where most accessibility actually breaks down, especially in dense enterprise products.</p>
+      <p>Cards tagged <span class="kind-badge kind-live" style="display:inline-flex;">Live demo</span> are real, working UI. Put your mouse away and press <kbd>Tab</kbd> — you'll notice the difference yourself. Cards tagged <span class="kind-badge kind-annotated" style="display:inline-flex;">Annotated</span> walk through the same do/don't logic visually. Every card has a small <strong>"the rule, for handoff"</strong> note you can open when you need the exact language to give an engineer.</p>
+
+      <div class="card-index">
+        <a class="index-card" href="#/buttons" data-nav="buttons">
+          <h3>Buttons →</h3>
+          <p>Labels, focus, disabled states, and 10 real interface patterns from toolbars to destructive actions.</p>
+        </a>
+        <a class="index-card" href="#/modals" data-nav="modals">
+          <h3>Modals →</h3>
+          <p>Focus lifecycle, and why forms and data tables inside modals quietly break for keyboard and screen-reader users.</p>
+        </a>
+        <a class="index-card" href="#/tables" data-nav="tables">
+          <h3>Tables →</h3>
+          <p>Headers, sorting, and why a table nested inside a table row is unreadable to almost everyone.</p>
+        </a>
+      </div>
+
+      <footer class="site-footer">Part of Bharat's portfolio. Built to demonstrate, not just describe, accessible design.</footer>
+    </section>
+
+    <!-- ============ BUTTONS ============ -->
+    <section class="page" id="page-buttons" aria-labelledby="buttons-h1">
+      <div class="page-header">
+        <p class="eyebrow">Component</p>
+        <h1 id="buttons-h1">Buttons</h1>
+        <p class="page-intro">A button is a promise: press this, and something happens right now. Almost every accessibility failure in a button comes down to one question — can a person who can't see or point at it still tell what it does, and still reach it?</p>
+      </div>
+
+      <div class="tablist" role="tablist" aria-label="Buttons view">
+        <button class="tab-btn" role="tab" id="tab-buttons-component" aria-selected="true" aria-controls="panel-buttons-component" data-tabgroup="buttons" data-tab="component">The Component</button>
+        <button class="tab-btn" role="tab" id="tab-buttons-inuse" aria-selected="false" aria-controls="panel-buttons-inuse" tabindex="-1" data-tabgroup="buttons" data-tab="inuse">In Use</button>
+      </div>
+
+      <div class="tabpanel" id="panel-buttons-component" role="tabpanel" aria-labelledby="tab-buttons-component">
+
+        <article class="topic">
+          <div class="topic-head"><h3>Label clarity</h3><span class="kind-badge kind-live">Live demo</span></div>
+          <p class="principle">An icon alone means nothing to a screen reader unless it's given a name. If the label only exists visually, half your users never receive it.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <div class="demo-stage">
+                <button class="btn-icon" data-sr="button">✕</button>
+                <button class="btn-icon" data-sr="button">⚙</button>
+                <button class="btn-icon" data-sr="button">🔗</button>
+              </div>
+              <p class="demo-caption">Three icon buttons, no accessible name.</p>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Tab to a button…</span></div>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do</span>
+              <div class="demo-stage">
+                <button class="btn-icon" data-sr="Close, button" aria-label="Close">✕</button>
+                <button class="btn-icon" data-sr="Settings, button" aria-label="Settings">⚙</button>
+                <button class="btn-icon" data-sr="Copy link, button" aria-label="Copy link">🔗</button>
+              </div>
+              <p class="demo-caption">Same icons, each with an <code>aria-label</code>.</p>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Tab to a button…</span></div>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> press Tab into both rows. Every icon looks equally clear to you — but only one row tells a screen-reader user what it's about to do.</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">WCAG 4.1.2 (Name, Role, Value) and 2.5.3 (Label in Name). Give icon-only buttons an <code>aria-label</code>, and make sure it matches or contains any visible tooltip text.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>A focus state you can actually see</h3><span class="kind-badge kind-live">Live demo</span></div>
+          <p class="principle">If you can't see where focus is, you can't use the interface without a mouse. Removing the focus outline for "cleanliness" removes the interface for keyboard users.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <div class="demo-stage">
+                <button class="btn btn-secondary no-outline">One</button>
+                <button class="btn btn-secondary no-outline">Two</button>
+                <button class="btn btn-secondary no-outline">Three</button>
+              </div>
+              <p class="demo-caption"><code>outline: none</code> with nothing to replace it.</p>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do</span>
+              <div class="demo-stage">
+                <button class="btn btn-secondary">One</button>
+                <button class="btn btn-secondary">Two</button>
+                <button class="btn btn-secondary">Three</button>
+              </div>
+              <p class="demo-caption">A clear ring on every stop, 3px, high contrast.</p>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> click the first button in each row, then press Tab twice. In the left row, focus is invisible — you're using the interface blind.</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">WCAG 2.4.7 (Focus Visible) and 2.4.11 (Focus Appearance, AA). Never remove the focus indicator without providing one at least as visible — a 2px+ outline with 3:1 contrast against its background.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Target size and spacing</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A button someone can't accurately tap or click is a button that doesn't work — for shaky hands, big thumbs, or anyone in a hurry.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <div class="mock">
+                <div class="mock-row">
+                  <button class="btn-icon" style="width:22px;height:22px;font-size:11px;">✎</button>
+                  <button class="btn-icon" style="width:22px;height:22px;font-size:11px;">📋</button>
+                  <button class="btn-icon" style="width:22px;height:22px;font-size:11px;">🗑</button>
+                </div>
+              </div>
+              <ul class="legend"><li><span class="badge-num">1</span>18–22px targets packed edge to edge — easy to miss or mis-tap.</li></ul>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do</span>
+              <div class="mock">
+                <div class="mock-row" style="gap:14px;">
+                  <button class="btn-icon">✎</button>
+                  <button class="btn-icon">📋</button>
+                  <button class="btn-icon">🗑</button>
+                </div>
+              </div>
+              <ul class="legend"><li><span class="badge-num">1</span>Minimum 24×24px hit area (44px on touch), with breathing room between.</li></ul>
+            </div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">WCAG 2.5.8 (Target Size Minimum, AA): 24×24px CSS pixels minimum, or adequate spacing to an equivalent effect. Aim for 44×44px on touch surfaces.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>State shown by more than color</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">Roughly 1 in 12 men can't reliably distinguish red from green. If "saved" and "failed" only differ by hue, that group can't tell them apart.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <div class="mock"><div class="mock-row"><button class="btn" style="background:var(--error);color:#fff;">Save</button><button class="btn" style="background:var(--success);color:#fff;">Save</button></div></div>
+              <ul class="legend"><li><span class="badge-num">1</span>Error vs. success communicated by color alone.</li></ul>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do</span>
+              <div class="mock"><div class="mock-row"><button class="btn btn-danger">⚠ Failed — Retry</button></div><div class="mock-row"><button class="btn" style="background:var(--success);color:#fff;">✓ Saved</button></div></div>
+              <ul class="legend"><li><span class="badge-num">1</span>Icon + text carries the meaning; color reinforces it.</li></ul>
+            </div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">WCAG 1.4.1 (Use of Color). Pair every color-coded state with an icon or text label.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Disabled buttons</h3><span class="kind-badge kind-live">Live demo</span></div>
+          <p class="principle">A truly <code>disabled</code> button is invisible to Tab and to screen readers — nobody can find out why it's off, or when it'll turn on. If people need to understand <em>why</em>, keep it focusable instead.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <div class="demo-stage">
+                <button class="btn btn-secondary" data-sr="Back, button">Back</button>
+                <button class="btn btn-primary" disabled>Continue</button>
+              </div>
+              <p class="demo-caption">Real <code>disabled</code> attribute — unreachable, unexplained.</p>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Tab through…</span></div>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do</span>
+              <div class="demo-stage">
+                <button class="btn btn-secondary" data-sr="Back, button">Back</button>
+                <button class="btn btn-primary" style="opacity:.5;cursor:not-allowed;" aria-disabled="true" data-sr="Continue, dimmed. Fill in your email to continue, button">Continue</button>
+              </div>
+              <p class="demo-caption"><code>aria-disabled</code> — stays reachable, explains itself.</p>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Tab through…</span></div>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> Tab through both rows. On the left, Tab jumps straight past "Continue" as if it doesn't exist — a keyboard user won't even know it's there, let alone why it's off.</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Use native <code>disabled</code> only for actions nobody needs an explanation for. Otherwise use <code>aria-disabled="true"</code> (element stays in tab order, click handler no-ops) plus visible reason text.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Button vs. link</h3><span class="kind-badge kind-live">Live demo</span></div>
+          <p class="principle">This is a design decision, not a dev one: does this control <em>do something on this screen</em> (button) or <em>take you somewhere else</em> (link)? Get it wrong and keyboard shortcuts, right-click-open-in-new-tab, and screen-reader navigation all break.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <div class="demo-stage">
+                <span role="button" tabindex="-1" style="color:var(--primary);cursor:pointer;font-weight:600;" data-sr="not focusable">Go to Settings</span>
+              </div>
+              <p class="demo-caption">A styled <code>&lt;span&gt;</code> with a click handler — not reachable by Tab at all.</p>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Tab to it…</span></div>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do</span>
+              <div class="demo-stage">
+                <a href="#/buttons" data-sr="Go to Settings, link" style="font-weight:600;">Go to Settings</a>
+              </div>
+              <p class="demo-caption">A real <code>&lt;a&gt;</code> — focusable, opens in new tab, announced as a link.</p>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Tab to it…</span></div>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> Tab toward each demo. The left one is skipped entirely — a mouse-only control masquerading as navigation.</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Navigation → <code>&lt;a href&gt;</code>. In-page action → <code>&lt;button&gt;</code>. Never build interactive controls from a <code>&lt;div&gt;</code> or <code>&lt;span&gt;</code>.</div></details>
+        </article>
+
+      </div>
+
+      <div class="tabpanel" id="panel-buttons-inuse" role="tabpanel" aria-labelledby="tab-buttons-inuse" hidden>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Icon-only toolbars</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A dense toolbar (formatting, media controls, dashboard actions) is often <em>only</em> icons — the exact case where every single one needs a name, and where a "current tool" state needs to be announced too.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div class="mock-row"><button class="btn-icon btn-sm">B</button><button class="btn-icon btn-sm">I</button><button class="btn-icon btn-sm">U</button><button class="btn-icon btn-sm">≡</button></div></div><ul class="legend"><li><span class="badge-num">1</span>No labels, and the "active" formatting state (e.g. Bold is on) isn't exposed at all.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div class="mock-row"><button class="btn-icon btn-sm btn-toggle" aria-pressed="true" aria-label="Bold" title="Bold">B</button><button class="btn-icon btn-sm" aria-label="Italic" title="Italic">I</button><button class="btn-icon btn-sm" aria-label="Underline" title="Underline">U</button></div></div><ul class="legend"><li><span class="badge-num">1</span>Each has <code>aria-label</code>; active ones use <code>aria-pressed</code>.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Toolbar buttons need <code>aria-label</code> and, if the toolbar is a single logical group, consider a <code>role="toolbar"</code> wrapper so arrow keys move between them.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Toggle buttons &amp; segmented controls</h3><span class="kind-badge kind-live">Live demo</span></div>
+          <p class="principle">A toggle that only changes color when pressed tells a sighted mouse user it's "on" — and tells a screen-reader user nothing at all, unless its pressed state is exposed in code.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <div class="demo-stage"><button class="btn btn-secondary" id="badToggle" data-sr="Grid view, button">Grid view</button></div>
+              <p class="demo-caption">Color flips on click; state lives only in CSS.</p>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Focus, then press Enter…</span></div>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do</span>
+              <div class="demo-stage"><button class="btn btn-toggle" data-toggle aria-pressed="false" data-sr-on="Grid view, pressed, button" data-sr-off="Grid view, button">Grid view</button></div>
+              <p class="demo-caption"><code>aria-pressed</code> flips with the visual state.</p>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Focus, then press Enter…</span></div>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> Tab to each button and press Enter a couple of times — watch the caption on the right actually announce "pressed."</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Use <code>aria-pressed="true|false"</code> on toggle buttons, and <code>aria-selected</code> for one-of-many segmented controls with <code>role="radiogroup"</code>/<code>radio</code> semantics.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Disabled-until-valid submit</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">Locking "Submit" until a form is perfect gives no one — sighted or not — any idea what's still wrong. It just feels broken.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div class="field"><label>Email</label><input placeholder="you@company.com"></div><button class="btn btn-primary" disabled>Create account</button></div><ul class="legend"><li><span class="badge-num">1</span>Button silently stays off. No error, no hint why.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div class="field"><label>Email</label><input placeholder="you@company.com"><span class="err">Enter a valid email to continue</span></div><button class="btn btn-primary">Create account</button></div><ul class="legend"><li><span class="badge-num">1</span>Button stays enabled; pressing it surfaces exactly what's missing.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Keep submit enabled and validate on submit (or on blur) with inline, programmatically-associated error text (<code>aria-describedby</code>).</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Repeated row actions</h3><span class="kind-badge kind-live">Live demo</span></div>
+          <p class="principle">A screen reader lists all the buttons on a page as one flat set. Ten rows each with a "Delete" button announce as "Delete, Delete, Delete…" — nobody can tell which row they're about to destroy.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <div class="demo-stage" style="flex-direction:column;align-items:stretch;gap:6px;">
+                <div style="display:flex;justify-content:space-between;"><span>Acme Corp invoice</span><button class="btn btn-sm btn-secondary" data-sr="Delete, button">Delete</button></div>
+                <div style="display:flex;justify-content:space-between;"><span>Globex invoice</span><button class="btn btn-sm btn-secondary" data-sr="Delete, button">Delete</button></div>
+              </div>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Tab to a Delete…</span></div>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do</span>
+              <div class="demo-stage" style="flex-direction:column;align-items:stretch;gap:6px;">
+                <div style="display:flex;justify-content:space-between;"><span>Acme Corp invoice</span><button class="btn btn-sm btn-secondary" data-sr="Delete Acme Corp invoice, button">Delete</button></div>
+                <div style="display:flex;justify-content:space-between;"><span>Globex invoice</span><button class="btn btn-sm btn-secondary" data-sr="Delete Globex invoice, button">Delete</button></div>
+              </div>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Tab to a Delete…</span></div>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> Tab to each Delete button and read the caption — only one row tells you what you're deleting before you commit.</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Add a visually-hidden suffix or <code>aria-label="Delete {{row name}}"</code> so the accessible name is unique per row.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Destructive actions — confirm and undo</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A confirmation dialog worded "Are you sure?" tells nobody what they're confirming. And a screen-reader or motor-impaired user benefits enormously from a generous "undo" window over a blocking confirm.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><h4 style="margin-bottom:4px;">Are you sure?</h4><p style="font-size:13px;margin-bottom:8px;">This can't be undone.</p><div class="mock-row"><button class="btn btn-sm btn-danger">Yes</button><button class="btn btn-sm btn-secondary">No</button></div></div><ul class="legend"><li><span class="badge-num">1</span>Vague wording; "Yes/No" forces re-reading the whole dialog to know which is which.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><h4 style="margin-bottom:4px;">Delete "Q3 Report"?</h4><p style="font-size:13px;margin-bottom:8px;">This file will be removed from all shared folders.</p><div class="mock-row"><button class="btn btn-sm btn-danger">Delete file</button><button class="btn btn-sm btn-secondary">Cancel</button></div></div><ul class="legend"><li><span class="badge-num">1</span>Buttons restate the actual action, not generic Yes/No.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Button labels should restate the action ("Delete file", not "Yes"). Prefer inline undo over a blocking confirm where the action is reversible.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Async / loading buttons</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A silent spinner tells a screen-reader user nothing changed — and invites a second, duplicate click.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><button class="btn btn-primary">⟳ ····</button></div><ul class="legend"><li><span class="badge-num">1</span>Spinner has no text alternative; button stays clickable mid-request.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><button class="btn btn-primary" aria-disabled="true">⟳ Saving…</button><div class="sr-strip" style="margin-top:8px;"><span class="icon">🔊</span><span class="txt">Saving, please wait</span></div></div><ul class="legend"><li><span class="badge-num">1</span>Visible "Saving…" text, an <code>aria-live</code> status update, and the button can't double-fire.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Swap the label to a verb + ellipsis, disable (or <code>aria-disabled</code>) during the request, and post progress to an <code>aria-live="polite"</code> region.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Split buttons &amp; dropdown buttons</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A button that's secretly two controls glued together (a default action + a chevron menu) needs two separately reachable, separately named targets — not one big blob.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><button class="btn btn-primary">Export ▾</button></div><ul class="legend"><li><span class="badge-num">1</span>One button, one Tab stop — the chevron's menu is unreachable by keyboard.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div class="mock-row" style="gap:0;"><button class="btn btn-primary" style="border-radius:8px 0 0 8px;">Export</button><button class="btn btn-primary" style="border-radius:0 8px 8px 0;border-left:1px solid rgba(255,255,255,.3);width:36px;padding:0;justify-content:center;" aria-haspopup="true" aria-label="More export options">▾</button></div></div><ul class="legend"><li><span class="badge-num">1</span>Two real buttons; the second uses <code>aria-haspopup</code> and its own label.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Build split buttons as two adjacent <code>&lt;button&gt;</code> elements. The menu trigger gets <code>aria-haspopup="menu"</code> and <code>aria-expanded</code>.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Clickable cards vs. buttons inside them</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A card that's clickable <em>and</em> contains its own buttons creates nested interactive zones — a screen reader or keyboard user can't tell where the card's click target ends and the inner button begins.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock" style="border:1px solid var(--hairline-strong);cursor:pointer;"><strong style="font-size:13px;">Project Falcon</strong><div class="mock-row" style="margin-top:8px;"><button class="btn-icon btn-sm">⋯</button></div></div><ul class="legend"><li><span class="badge-num">1</span>The whole card and the "⋯" button both fire click — one nested inside the other.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock" style="border:1px solid var(--hairline-strong);"><a href="#/buttons" style="font-size:13px;font-weight:600;">Project Falcon</a><div class="mock-row" style="margin-top:8px;"><button class="btn-icon btn-sm" aria-label="More options">⋯</button></div></div><ul class="legend"><li><span class="badge-num">1</span>Only the title is the link; the menu button is a clearly separate, sibling control.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Never nest interactive elements. Make the card's primary link one clear target (often the title) and keep secondary actions as visually-distinct sibling buttons.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Sticky CTAs &amp; floating action buttons</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A button pinned to the viewport can permanently cover content underneath once someone zooms in — especially at 200%+ text size, which WCAG requires your layout to survive.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock" style="height:90px;position:relative;overflow:hidden;"><p style="font-size:11px;">Line one of body copy that keeps going and going under the button…</p><button class="btn btn-primary btn-sm" style="position:absolute;bottom:4px;right:4px;">Buy now</button></div><ul class="legend"><li><span class="badge-num">1</span>At high zoom the FAB permanently overlaps the last lines of content.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock" style="height:90px;"><p style="font-size:11px;">Body copy reserves space so the sticky bar never overlaps it, at any zoom level.</p><div style="height:24px;"></div><button class="btn btn-primary btn-sm">Buy now</button></div><ul class="legend"><li><span class="badge-num">1</span>Content has reserved padding equal to the sticky element's height.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">WCAG 1.4.10 (Reflow). Reserve layout space for fixed/sticky elements so they never permanently obscure content at 400% zoom.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Button vs. link in marketing heroes</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">"Get started" that navigates to a pricing page is a link dressed as a button — which breaks right-click → open in new tab, a habit many power users rely on constantly.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><button class="btn btn-primary">Get started →</button></div><ul class="legend"><li><span class="badge-num">1</span>Styled like a button, implemented with an onClick that changes <code>window.location</code>.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><a href="#/buttons" class="btn btn-primary" style="text-decoration:none;">Get started →</a></div><ul class="legend"><li><span class="badge-num">1</span>Same visual weight, real <code>&lt;a href&gt;</code> underneath.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">If pressing it changes the URL, it must be an anchor tag — styling can still look exactly like a button.</div></details>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ============ MODALS ============ -->
+    <section class="page" id="page-modals" aria-labelledby="modals-h1">
+      <div class="page-header">
+        <p class="eyebrow">Component</p>
+        <h1 id="modals-h1">Modals</h1>
+        <p class="page-intro">A modal interrupts the entire page to demand attention on one task. That's exactly why it's high-risk: focus, keyboard trapping, and return-of-focus all have to be handled correctly, or a keyboard user can get lost — or trapped — behind the page.</p>
+      </div>
+
+      <div class="tablist" role="tablist" aria-label="Modals view">
+        <button class="tab-btn" role="tab" id="tab-modals-component" aria-selected="true" aria-controls="panel-modals-component" data-tabgroup="modals" data-tab="component">The Component</button>
+        <button class="tab-btn" role="tab" id="tab-modals-inuse" aria-selected="false" aria-controls="panel-modals-inuse" tabindex="-1" data-tabgroup="modals" data-tab="inuse">In Use</button>
+      </div>
+
+      <div class="tabpanel" id="panel-modals-component" role="tabpanel" aria-labelledby="tab-modals-component">
+
+        <article class="topic">
+          <div class="topic-head"><h3>The focus lifecycle</h3><span class="kind-badge kind-live">Live demo — flagship</span></div>
+          <p class="principle">A correct modal does four things in order: moves focus <em>into</em> itself on open, <em>traps</em> Tab so it can't reach the page behind, closes on <strong>Escape</strong>, and <em>returns</em> focus to whatever opened it. Miss any one of these and a keyboard user gets lost or stuck.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <div class="demo-stage"><button class="btn btn-secondary" id="openBadModal">Open "leaky" modal</button></div>
+              <p class="demo-caption">Focus doesn't move on open, and Tab escapes to the page behind.</p>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do</span>
+              <div class="demo-stage"><button class="btn btn-primary" id="openGoodModal">Open accessible modal</button></div>
+              <p class="demo-caption">Focus enters, stays trapped, Esc closes, focus returns here.</p>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> open the left modal, then press Tab repeatedly — you'll land back on this page's nav and buttons while the modal is still open, invisible and unusable. Now open the right one: Tab loops forever inside it, and Escape (or Close) sends focus right back to the button you started on.</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">WCAG 2.4.3 (Focus Order) and 2.1.2 (No Keyboard Trap, inverted — the modal is the one legitimate trap). On open: move focus to the modal (usually its heading or first field). While open: keep Tab/Shift+Tab cycling only within it. On close: return focus to the trigger element.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>An announced title</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">The instant a modal opens, a screen-reader user should hear what it's for — without having to explore it first.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;color:var(--muted);">role="dialog" — no name</div></div><ul class="legend"><li><span class="badge-num">1</span>Opens silently: "dialog" and nothing else.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div style="font-size:13px;">role="dialog" <code style="font-size:11px;">aria-labelledby="title"</code></div></div><ul class="legend"><li><span class="badge-num">1</span>Announces: "Delete file, dialog."</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Give the dialog container <code>role="dialog"</code> (or <code>alertdialog</code> for warnings) and <code>aria-labelledby</code> pointing at its visible heading.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>The background is made inert</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">If the page behind the modal is still "live," a screen-reader user exploring by swipe can wander straight into it without knowing a modal is open.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">Modal open, page content behind still reachable by swipe/Tab.</div></div><ul class="legend"><li><span class="badge-num">1</span>Background isn't hidden from assistive tech.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div style="font-size:13px;">Background marked <code style="font-size:11px;">inert</code> / <code style="font-size:11px;">aria-hidden</code> while modal is open.</div></div><ul class="legend"><li><span class="badge-num">1</span>Only the modal exists, as far as assistive tech is concerned.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Apply the <code>inert</code> attribute (or <code>aria-hidden="true"</code> on all siblings) to everything outside the modal while it's open.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>A real, visible close control</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">If the only way out is clicking the dim backdrop, anyone navigating by keyboard or screen reader has no idea that's even an exit.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">No visible close button — backdrop click only.</div></div><ul class="legend"><li><span class="badge-num">1</span>No discoverable, focusable exit.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div class="mock-row" style="justify-content:space-between;"><strong style="font-size:13px;">Modal title</strong><button class="modal-close" style="width:24px;height:24px;font-size:16px;" aria-label="Close">✕</button></div></div><ul class="legend"><li><span class="badge-num">1</span>Labeled, focusable close button, plus Escape.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Always include a focusable, labeled close button in addition to Escape — never rely on backdrop click as the only exit.</div></details>
+        </article>
+
+      </div>
+
+      <div class="tabpanel" id="panel-modals-inuse" role="tabpanel" aria-labelledby="tab-modals-inuse" hidden>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Complex forms inside a modal</h3><span class="kind-badge kind-live">Live demo — flagship</span></div>
+          <p class="principle">This is the pattern you flagged, and it's everywhere in enterprise tools: a long form crammed into a small overlay. The moment it needs to scroll, or throws a validation error, the modal loses two things a full page never gives up — a stable frame of reference, and room to see the rest of the product for context.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <div class="demo-stage"><button class="btn btn-secondary" id="openFormModal">Open "new employee" modal</button></div>
+              <p class="demo-caption">7-field form squeezed into a 480px box.</p>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do instead</span>
+              <div class="mock"><div style="font-size:13px;">→ A dedicated page or a full-height side panel, with the same form given room to breathe and its own URL.</div></div>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> open the modal and press Tab through every field, then submit it empty. Notice you can't see the page behind for reference, and once it's scrolled, the title and close button may have scrolled off too.</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">If a form has more than ~4 fields, needs its own scroll, or people need to reference the page behind while filling it in — it should not be a modal. Use a full page or a persistent side panel instead.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Data tables inside a modal</h3><span class="kind-badge kind-live">Live demo — flagship</span></div>
+          <p class="principle">Also from your own experience: enterprise products love putting a data table inside a modal ("view details," "select from list"). The table needs to scroll sideways; the modal needs to scroll up and down — now there are two competing scroll zones stacked on top of each other, which is disorienting for everyone and often unusable with a screen reader or on a small screen.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <div class="demo-stage"><button class="btn btn-secondary" id="openTableModal">Open "select account" modal</button></div>
+              <p class="demo-caption">Wide table, narrow modal — double scrollbars.</p>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do instead</span>
+              <div class="mock"><div style="font-size:13px;">→ A full page or drawer with the table given the whole viewport width, or a simplified single-column "picker" list instead of the full table.</div></div>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> open the modal and try to see every column — you'll need to scroll the table horizontally <em>and</em> the modal vertically, in a space smaller than your screen.</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Nested independent scroll regions are a known WCAG 1.4.10 (Reflow) and usability risk. If a table needs its own horizontal scroll, it shouldn't be nested inside a vertically-scrolling container.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Stacked modals</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A modal that opens another modal on top doubles every focus-trap and return-focus problem — and most implementations only ever built the logic for one layer.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">Modal B opens over Modal A; closing B returns focus to Modal A's trigger — a button now hidden behind Modal A itself.</div></div><ul class="legend"><li><span class="badge-num">1</span>Focus returns to a now-invisible element.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div style="font-size:13px;">Avoid stacking at all — replace Modal A's content in place, or use a single wizard-style modal with steps.</div></div><ul class="legend"><li><span class="badge-num">1</span>One modal, one focus trap, one return path.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Avoid modal-over-modal. If unavoidable, each layer needs its own independent focus trap and must return focus to the correct still-visible trigger.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Confirmation dialogs</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">The default-focused button in a confirm dialog is whichever one gets triggered by an accidental Enter press — so it should almost never be the destructive one.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div class="mock-row"><button class="btn btn-sm btn-danger" style="outline:2px solid var(--focus-ring);">Delete</button><button class="btn btn-sm btn-secondary">Cancel</button></div></div><ul class="legend"><li><span class="badge-num">1</span>Initial focus defaults to the destructive action.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div class="mock-row"><button class="btn btn-sm btn-danger">Delete</button><button class="btn btn-sm btn-secondary" style="outline:2px solid var(--focus-ring);">Cancel</button></div></div><ul class="legend"><li><span class="badge-num">1</span>Initial focus defaults to the safe action.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Default focus goes to the non-destructive option, unless the destructive action is what the user just explicitly asked to confirm.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Alert dialogs &amp; session timeouts</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A session-timeout warning that appears silently and vanishes after 10 seconds can log someone out mid-task without them ever knowing it appeared.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">Toast fades in top-right, auto-dismisses in 10s, no sound or focus change.</div></div><ul class="legend"><li><span class="badge-num">1</span>Easy to miss entirely; timer keeps running regardless.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div style="font-size:13px;"><code style="font-size:11px;">role="alertdialog"</code>, interrupts and requests focus, stays until dismissed, offers "Stay signed in."</div></div><ul class="legend"><li><span class="badge-num">1</span>Impossible to miss; user controls when it closes.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Time-critical alerts use <code>role="alertdialog"</code>, take focus immediately, and never auto-dismiss on their own timer (WCAG 2.2.1, Timing Adjustable).</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Click-outside-to-dismiss on data entry</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">Dismissing a half-filled form with a single accidental click outside the box is one of the most common ways people lose work.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">Any click on the backdrop instantly closes the form — no warning.</div></div><ul class="legend"><li><span class="badge-num">1</span>One misclick, work gone.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div style="font-size:13px;">Backdrop click on a dirty form triggers "Discard changes?" — or is disabled entirely once the form has input.</div></div><ul class="legend"><li><span class="badge-num">1</span>Accidental dismissal is caught before data is lost.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Track dirty state; once a user has entered data, require an explicit confirm before backdrop-dismiss or Escape closes the modal.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Multi-step wizards inside modals</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">Each step change inside a modal is effectively a new "page" — if focus and headings don't reset per step, a screen-reader user can't tell they moved at all.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">Step 2 content swaps in silently; focus stays wherever it was on Step 1.</div></div><ul class="legend"><li><span class="badge-num">1</span>No announcement that the step changed.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div style="font-size:13px;">On step change, move focus to the new step's heading; heading text updates ("Step 2 of 3: Billing").</div></div><ul class="legend"><li><span class="badge-num">1</span>Step change is announced and focus lands in the right place.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Move focus to each new step's heading on transition, and include "Step X of Y" in that heading's accessible name.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Side panel / drawer as the alternative</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">Most of the modal failures above share one fix: don't use a modal. A side panel keeps the page behind visible and scrollable independently, while still focusing attention on the task.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">Long form or table forced into a centered 480px modal.</div></div><ul class="legend"><li><span class="badge-num">1</span>Fixed small footprint regardless of content.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div style="font-size:13px;">Full-height drawer sliding from the edge, its own independent scroll, page behind still visible and dimmed (not hidden).</div></div><ul class="legend"><li><span class="badge-num">1</span>Same focus-trap rules apply, but content has real room.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Drawers still need the full focus lifecycle (trap, Escape, return-focus) — swapping the shape doesn't remove those requirements.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Full-screen modals on mobile</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A centered 480px modal on a 375px phone screen either overflows or gets crushed — on mobile, a modal should almost always become full-screen.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">Fixed-width desktop modal shrunk to fit — tiny tap targets, cramped text.</div></div><ul class="legend"><li><span class="badge-num">1</span>Desktop layout ported unchanged to a small viewport.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div style="font-size:13px;">Full-screen sheet with a top bar (Close + title), content fills the viewport, no competing scroll region.</div></div><ul class="legend"><li><span class="badge-num">1</span>Uses the full viewport; one scroll region, generous targets.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Below ~600px viewport width, modals should expand to fill the screen rather than float as a small centered card.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Lightbox / media modals</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">An image lightbox often ships with zero keyboard support — arrow keys don't move between images, and there's no accessible name for what's currently showing.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">Image swaps on click of tiny, unlabeled arrow icons; no caption or alt text surfaced.</div></div><ul class="legend"><li><span class="badge-num">1</span>Mouse-only navigation, no announced content.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div style="font-size:13px;">Left/Right arrow keys navigate; "Image 2 of 8: [description]" is announced; labeled Next/Previous buttons.</div></div><ul class="legend"><li><span class="badge-num">1</span>Full keyboard support and a real accessible name per image.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Support Left/Right arrow keys, label Next/Previous controls, and update an <code>aria-live</code> region or the dialog's accessible name with position and description on each change.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Auto-opening popups &amp; interstitials</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A modal that opens itself — a newsletter signup, a survey — steals focus from whatever someone was mid-task doing, with zero warning.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">Fires automatically 3 seconds after page load, focus is yanked from wherever it was.</div></div><ul class="legend"><li><span class="badge-num">1</span>Unrequested interruption to whatever the user was doing.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div style="font-size:13px;">Triggered only by a user action (scroll-to-end, exit intent with a clear affordance), or shown as a dismissible inline banner instead.</div></div><ul class="legend"><li><span class="badge-num">1</span>User-initiated, or non-blocking.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Avoid unsolicited focus changes (WCAG 3.2.1/3.2.5, On Focus / Change on Request). If a promo must appear automatically, prefer a non-modal, easily dismissible banner over a focus-stealing dialog.</div></details>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ============ TABLES ============ -->
+    <section class="page" id="page-tables" aria-labelledby="tables-h1">
+      <div class="page-header">
+        <p class="eyebrow">Component</p>
+        <h1 id="tables-h1">Tables</h1>
+        <p class="page-intro">A sighted user scans a table with their eyes, jumping between rows and columns freely. A screen reader can only read it one cell at a time — which means the table's structure, not just its content, has to carry the meaning.</p>
+      </div>
+
+      <div class="tablist" role="tablist" aria-label="Tables view">
+        <button class="tab-btn" role="tab" id="tab-tables-component" aria-selected="true" aria-controls="panel-tables-component" data-tabgroup="tables" data-tab="component">The Component</button>
+        <button class="tab-btn" role="tab" id="tab-tables-inuse" aria-selected="false" aria-controls="panel-tables-inuse" tabindex="-1" data-tabgroup="tables" data-tab="inuse">In Use</button>
+      </div>
+
+      <div class="tabpanel" id="panel-tables-component" role="tabpanel" aria-labelledby="tab-tables-component">
+
+        <article class="topic">
+          <div class="topic-head"><h3>Header cells that describe the column</h3><span class="kind-badge kind-live">Live demo</span></div>
+          <p class="principle">Move through a table cell by cell with a screen reader, and it re-announces the column header each time — but only if the header is marked up as one.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <table class="demo-table"><tbody>
+                <tr><td data-sr="Name">Name</td><td data-sr="Status">Status</td></tr>
+                <tr><td data-sr="Acme Corp, cell">Acme Corp</td><td data-sr="Active, cell">Active</td></tr>
+              </tbody></table>
+              <p class="demo-caption">Header row built from plain <code>&lt;td&gt;</code>.</p>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Focus a data cell…</span></div>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do</span>
+              <table class="demo-table"><thead><tr><th scope="col">Name</th><th scope="col">Status</th></tr></thead><tbody>
+                <tr><td data-sr="Acme Corp, Name, cell">Acme Corp</td><td data-sr="Active, Status, cell">Active</td></tr>
+              </tbody></table>
+              <p class="demo-caption">Real <code>&lt;th scope="col"&gt;</code>.</p>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Focus a data cell…</span></div>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> Tab to a data cell in each table. Only the right one tells you which column you landed in.</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">WCAG 1.3.1 (Info and Relationships). Use real <code>&lt;th scope="col"&gt;</code>/<code>scope="row"</code>, never a styled <code>&lt;td&gt;</code>, for anything that labels a row or column.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Sortable columns announce direction</h3><span class="kind-badge kind-live">Live demo</span></div>
+          <p class="principle">A sort arrow that only appears visually tells a screen-reader user nothing about which column is sorted, or which way.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <table class="demo-table"><thead><tr><th scope="col"><button style="background:none;border:none;font:inherit;font-weight:600;cursor:pointer;padding:0;" data-sr="Name, button">Name ▲</button></th><th scope="col">Revenue</th></tr></thead><tbody><tr><td>Acme</td><td class="num">$12k</td></tr></tbody></table>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Focus the header…</span></div>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do</span>
+              <table class="demo-table"><thead><tr><th scope="col" aria-sort="ascending"><button style="background:none;border:none;font:inherit;font-weight:600;cursor:pointer;padding:0;" data-sr="Name, sorted ascending, button">Name ▲</button></th><th scope="col">Revenue</th></tr></thead><tbody><tr><td>Acme</td><td class="num">$12k</td></tr></tbody></table>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Focus the header…</span></div>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> Tab to each "Name" header — only one announces the current sort direction along with the arrow you can see.</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Put <code>aria-sort="ascending|descending|none"</code> on the <code>&lt;th&gt;</code>, and make the header label itself a <code>&lt;button&gt;</code> so it's operable by keyboard.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Row scanning</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">In a wide table, losing your place while scanning left to right is easy for anyone with low vision or a small viewport — subtle zebra striping and a fixed row header column both help.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><table class="demo-table"><tbody><tr><td>Acme</td><td>Active</td><td class="num">$12k</td></tr><tr><td>Globex</td><td>Paused</td><td class="num">$8k</td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>Identical rows, nothing to anchor the eye row-to-row.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><table class="demo-table"><tbody><tr style="background:var(--canvas-soft);"><th scope="row" style="font-weight:600;">Acme</th><td>Active</td><td class="num">$12k</td></tr><tr><th scope="row" style="font-weight:600;">Globex</th><td>Paused</td><td class="num">$8k</td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>Alternating background + a bolded <code>&lt;th scope="row"&gt;</code> anchor column.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Use <code>scope="row"</code> on the identifying first cell of each row, not just visual bolding.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Don't merge cells</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle"><code>colspan</code>/<code>rowspan</code> for visual grouping breaks the simple one-header-per-cell relationship screen readers rely on to announce a table correctly.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><table class="demo-table"><thead><tr><th colspan="2" scope="colgroup">Q3 Revenue</th></tr><tr><th scope="col">Region</th><th scope="col">Amount</th></tr></thead><tbody><tr><td>US</td><td class="num">$40k</td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>Merged header rows are hard for screen readers to map to each column reliably.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><table class="demo-table"><thead><tr><th scope="col">Region</th><th scope="col">Q3 Revenue</th></tr></thead><tbody><tr><td>US</td><td class="num">$40k</td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>One header per column, group context folded into the label text.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Avoid merged header cells where possible. If unavoidable, use <code>headers</code>/<code>id</code> attributes to explicitly map every data cell to all of its headers.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Alignment rules</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">Numbers align right so digits stack for comparison; everything else aligns left. Centered columns make both harder to scan.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><table class="demo-table"><tbody><tr><td style="text-align:center;">$1,204</td></tr><tr><td style="text-align:center;">$85</td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>Centered numbers never line up for comparison.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><table class="demo-table"><tbody><tr><td class="num">$1,204</td></tr><tr><td class="num">$85</td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>Right-aligned, tabular numerals — digits stack cleanly.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">This is a visual-design rule with no ARIA equivalent, but it materially affects scannability for low-vision users: numeric columns right-align, text columns left-align.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Empty states</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">An empty table that just renders a bare header row leaves a screen-reader user unsure whether the data failed to load or genuinely doesn't exist.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><table class="demo-table"><thead><tr><th scope="col">Name</th><th scope="col">Status</th></tr></thead><tbody></tbody></table><ul class="legend"><li><span class="badge-num">1</span>Zero rows, zero explanation.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><table class="demo-table"><thead><tr><th scope="col">Name</th><th scope="col">Status</th></tr></thead><tbody><tr><td colspan="2" style="text-align:center;color:var(--muted);padding:16px;">No records yet — add your first one to get started.</td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>An explicit, readable empty-state row.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Render an explicit empty-state message inside the table body (not just a blank area below the header) so it's discoverable in the same reading order.</div></details>
+        </article>
+
+      </div>
+
+      <div class="tabpanel" id="panel-tables-inuse" role="tabpanel" aria-labelledby="tab-tables-inuse" hidden>
+
+        <article class="topic">
+          <div class="topic-head"><h3>A nested table inside a row</h3><span class="kind-badge kind-live">Live demo — flagship</span></div>
+          <p class="principle">Your other example: a table inside a table row (line items under an invoice, sub-tasks under a task). Structurally, a screen reader now has to announce "table, row, table, row, cell" for every single value — it's exhausting to listen to and nearly impossible to build a mental map of.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <table class="demo-table"><thead><tr><th scope="col">Invoice</th><th scope="col">Total</th></tr></thead><tbody>
+                <tr><td data-sr="table, Invoice #204, table, row 1 of 1, Item, table, column header row">
+                  Invoice #204
+                  <table class="demo-table" style="margin-top:6px;font-size:12px;"><thead><tr><th scope="col">Item</th><th scope="col">Qty</th></tr></thead><tbody><tr><td>Design hours</td><td>12</td></tr></tbody></table>
+                </td><td class="num">$1,800</td></tr>
+              </tbody></table>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Focus the invoice cell…</span></div>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do instead</span>
+              <table class="demo-table"><thead><tr><th scope="col"></th><th scope="col">Invoice</th><th scope="col">Total</th></tr></thead><tbody>
+                <tr><td><button class="btn-icon btn-sm" aria-expanded="false" aria-label="Show line items for Invoice #204" data-expand-target="inv-204">▸</button></td><th scope="row">Invoice #204</th><td class="num">$1,800</td></tr>
+              </tbody></table>
+              <div id="inv-204" class="mock" style="margin-top:8px;display:none;font-size:12.5px;">Design hours — 12 hrs — $1,800</div>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Try the expand button…</span></div>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> Tab to the invoice cell on the left and read the caption — one focus stop announces four nested structural layers before you even hear the data. On the right, press the expand toggle instead — a single flat row with an on-demand detail panel.</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Never nest a <code>&lt;table&gt;</code> inside a table cell. Use an expandable row (<code>aria-expanded</code> button + a detail region) or move the child data to a separate master–detail view instead.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Expandable detail rows, done right</h3><span class="kind-badge kind-live">Live demo</span></div>
+          <p class="principle">The fix above works generally: keep the table flat, and disclose extra detail with a real toggle button whose state is exposed in code.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <table class="demo-table"><tbody><tr onclick="" style="cursor:pointer;"><td data-sr="row, not a button">Marketing plan ▸</td></tr></tbody></table>
+              <p class="demo-caption">Whole row is clickable via a div/row handler — not keyboard operable.</p>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Tab to the row…</span></div>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do</span>
+              <table class="demo-table"><tbody><tr><td><button class="btn-sm btn-secondary btn" style="width:100%;justify-content:space-between;" aria-expanded="false" data-expand-target="mkt-plan" data-sr-on="Marketing plan, expanded, button" data-sr-off="Marketing plan, collapsed, button">Marketing plan <span aria-hidden="true">▸</span></button></td></tr></tbody></table>
+              <div id="mkt-plan" class="mock" style="margin-top:8px;display:none;font-size:12.5px;">3 tasks, due Sept 12.</div>
+              <div class="sr-strip empty" data-sr-out><span class="icon">🔊</span><span class="txt">Focus, then press Enter…</span></div>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> Tab to the left row — nothing happens on Enter. Tab to the right button and press Enter — it expands and announces its new state.</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">The expand/collapse control must be a real <code>&lt;button&gt;</code> with <code>aria-expanded</code>, and <code>aria-controls</code> pointing at the detail region's id.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Row selection &amp; bulk-action bars</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A checkbox with no visible label relies entirely on position to make sense — which breaks the moment it's read out of visual context.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><table class="demo-table"><tbody><tr><td><input type="checkbox" aria-label=""></td><td>Acme Corp</td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>Checkbox announces only as "checkbox, not checked" — select <em>what</em>?</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><table class="demo-table"><tbody><tr><td><input type="checkbox" aria-label="Select Acme Corp"></td><td>Acme Corp</td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>"Select Acme Corp, checkbox" — row identity included in the name.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Each row checkbox needs <code>aria-label="Select {{row name}}"</code>, and the resulting bulk-action bar should announce the current selection count via <code>aria-live</code>.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Hover-only row actions</h3><span class="kind-badge kind-live">Live demo</span></div>
+          <p class="principle">Actions that only appear on mouse hover are invisible to anyone navigating by keyboard — they need to appear on keyboard focus too.</p>
+          <div class="demo-pair">
+            <div class="demo bad">
+              <span class="tag tag-bad">✕ Avoid</span>
+              <table class="demo-table"><tbody><tr class="hoverOnlyBad"><td>Acme Corp</td><td><span class="row-actions" style="opacity:0;"><button class="btn-icon btn-sm">✎</button></span></td></tr></tbody></table>
+              <p class="demo-caption">CSS uses <code>:hover</code> only — Tab-focusing the button doesn't reveal it.</p>
+            </div>
+            <div class="demo good">
+              <span class="tag tag-good">✓ Do</span>
+              <table class="demo-table"><tbody><tr><td>Acme Corp</td><td><span class="row-actions"><button class="btn-icon btn-sm">✎</button></span></td></tr></tbody></table>
+              <p class="demo-caption">Uses <code>:hover, :focus-within</code> — Tab reveals it too.</p>
+            </div>
+          </div>
+          <p class="try-it"><strong>Try it:</strong> Tab through both rows without touching your mouse — only the right-hand action button becomes visible as focus reaches it.</p>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Any CSS rule that reveals content on <code>:hover</code> must also trigger on <code>:focus-within</code> or <code>:focus-visible</code>.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Inline editing / editable grids</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A cell that silently becomes an input on double-click has no discoverable way in for a keyboard-only user — and no obvious way to tell it's now editable.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><table class="demo-table"><tbody><tr><td ondblclick="" style="cursor:text;">Acme Corp</td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>Double-click only; nothing indicates the cell is editable.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><table class="demo-table"><tbody><tr><td><button class="btn btn-sm btn-secondary" aria-label="Edit Acme Corp" style="width:100%;justify-content:space-between;">Acme Corp <span aria-hidden="true">✎</span></button></td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>Enter/Space opens edit mode from keyboard focus; visible edit affordance.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Editable cells need a keyboard-operable trigger (Enter to edit, Escape to cancel, Enter/blur to save) and a visible affordance showing they're editable.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Sorting &amp; filtering controls</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">Filters that live in a hidden flyout with no labels reduce a whole table to guesswork about what's currently applied.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">Filter icon opens an unlabeled panel; active filters shown only as colored dots.</div></div><ul class="legend"><li><span class="badge-num">1</span>No text summary of what's currently filtered.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div class="badge" style="background:var(--surface-strong);color:var(--ink);">Status: Active ✕</div></div><ul class="legend"><li><span class="badge-num">1</span>Applied filters shown as removable, labeled chips above the table.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Surface active filters as text (chips or a summary line), each individually labeled and removable — see also "Sortable columns" in The Component.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Pagination vs. infinite scroll vs. load more</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">Infinite scroll that keeps injecting rows below a screen-reader user's current position makes it impossible to ever reach the footer, or to know how much content exists.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">Rows silently append forever on scroll; footer is unreachable.</div></div><ul class="legend"><li><span class="badge-num">1</span>No end, no count, no way to jump ahead.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div class="mock-row"><button class="btn btn-sm btn-secondary">Load 20 more</button><span style="font-size:12px;color:var(--muted);">Showing 20 of 214</span></div></div><ul class="legend"><li><span class="badge-num">1</span>Explicit button, visible total count, or true paged navigation.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Prefer numbered pagination or an explicit "Load more" button over auto-triggering infinite scroll; always show the total record count.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Sticky headers &amp; frozen columns</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A frozen first column that overlaps regular columns at high zoom hides data behind data — the exact reflow failure sticky UI is prone to.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock" style="overflow:hidden;"><div style="font-size:13px;">At 300% zoom, the frozen "Name" column overlaps the second column's text.</div></div><ul class="legend"><li><span class="badge-num">1</span>Fixed pixel widths don't scale with zoom.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div style="font-size:13px;">Frozen column width and table layout scale together; falls back to normal horizontal scroll past a zoom threshold.</div></div><ul class="legend"><li><span class="badge-num">1</span>Tested and stable at 400% zoom.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">WCAG 1.4.10 (Reflow). Test frozen headers/columns at 400% zoom specifically — this is where they most often break.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Responsive tables on mobile</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">Shrinking a wide table to fit a phone by shrinking the font is unreadable; the better pattern re-flows each row into a small labeled card.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><table class="demo-table" style="font-size:9px;"><thead><tr><th scope="col">Name</th><th scope="col">Status</th><th scope="col">Revenue</th><th scope="col">Owner</th></tr></thead><tbody><tr><td>Acme</td><td>Active</td><td>$12k</td><td>J.D.</td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>Same table, just squeezed and shrunk.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock" style="font-size:12.5px;"><strong>Acme</strong><div>Status: Active</div><div>Revenue: $12k</div><div>Owner: J.D.</div></div><ul class="legend"><li><span class="badge-num">1</span>Each row becomes a labeled card — every value keeps its header attached.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Below a defined breakpoint, transform rows into stacked label/value pairs rather than shrinking the table proportionally.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Color-only status badges &amp; sparklines</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A colored dot for "at risk / on track / done" repeats the color-only problem from buttons — at table scale, across dozens of rows.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><table class="demo-table"><tbody><tr><td><span class="status-dot red"></span></td><td>Project Falcon</td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>A red dot, no text — meaningless without color vision.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><table class="demo-table"><tbody><tr><td><span class="badge" style="background:var(--error-soft);color:var(--error);">● At risk</span></td><td>Project Falcon</td></tr></tbody></table><ul class="legend"><li><span class="badge-num">1</span>Text label carries the meaning; color reinforces it.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Same rule as buttons: WCAG 1.4.1. Every status indicator needs a text label, not color alone.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Dense enterprise tables</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A 20-column operations table isn't wrong on its own — but showing all 20 by default, with no way to prioritize or hide columns, overwhelms low-vision and screen-reader users first.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">All 20 columns rendered at once, same visual weight, no density control.</div></div><ul class="legend"><li><span class="badge-num">1</span>No way to focus on what matters right now.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div class="mock-row"><button class="btn btn-sm btn-secondary">Columns ▾</button><button class="btn btn-sm btn-secondary">Comfortable ▾</button></div></div><ul class="legend"><li><span class="badge-num">1</span>Column visibility + density are user-controlled, defaults kept lean.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Offer a labeled column-visibility control and default to the smallest set that covers the primary task, not every possible field.</div></details>
+        </article>
+
+        <article class="topic">
+          <div class="topic-head"><h3>Loading &amp; error states</h3><span class="kind-badge kind-annotated">Annotated</span></div>
+          <p class="principle">A skeleton-loading table with no announcement leaves a screen-reader user assuming the page is simply broken until data arrives — or forever, if it fails.</p>
+          <div class="demo-pair">
+            <div class="demo bad"><span class="tag tag-bad">✕ Avoid</span><div class="mock"><div style="font-size:13px;">Grey skeleton bars, no text, no live-region update on success or failure.</div></div><ul class="legend"><li><span class="badge-num">1</span>Silent to assistive tech the entire time.</li></ul></div>
+            <div class="demo good"><span class="tag tag-good">✓ Do</span><div class="mock"><div class="sr-strip"><span class="icon">🔊</span><span class="txt">Loading accounts… / Couldn't load accounts — Retry</span></div></div><ul class="legend"><li><span class="badge-num">1</span>Loading and error states both post to an <code>aria-live</code> region.</li></ul></div>
+          </div>
+          <details class="handoff"><summary>The rule, for handoff</summary><div class="handoff-body">Wrap the loading/error status message in <code>aria-live="polite"</code> (or <code>role="status"</code>), and give the error state a retry action.</div></details>
+        </article>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ MODAL MARKUP (shared overlay elements) ============ -->
+
+<div class="modal-overlay" id="badModalOverlay">
+  <div class="modal-box" role="dialog" aria-label="Leaky modal example">
+    <div class="modal-head"><strong>Edit profile</strong><span class="modal-close" aria-hidden="true">✕</span></div>
+    <div class="modal-body">
+      <p style="font-size:14px;">This modal doesn't move focus to itself on open, has no Escape handler, and its close "button" isn't actually focusable. Tab away from here to feel the trap fail.</p>
+      <button class="btn btn-secondary" id="badModalCloseFake">Close (decorative only)</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="goodModalOverlay">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="goodModalTitle">
+    <div class="modal-head">
+      <strong id="goodModalTitle">Edit profile</strong>
+      <button class="modal-close" aria-label="Close" data-close-modal="goodModalOverlay">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;">Focus landed here automatically when this opened. Try tabbing forward through every control — you'll loop back to the top instead of escaping to the page.</p>
+      <button class="btn btn-secondary">A focusable control</button>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" data-close-modal="goodModalOverlay">Cancel</button>
+      <button class="btn btn-primary" data-close-modal="goodModalOverlay">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="formModalOverlay">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="formModalTitle">
+    <div class="modal-head"><strong id="formModalTitle">New employee</strong><button class="modal-close" aria-label="Close" data-close-modal="formModalOverlay">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label for="f-name">Full name</label><input id="f-name"></div>
+      <div class="field"><label for="f-email">Email</label><input id="f-email" type="email"></div>
+      <div class="field"><label for="f-title">Job title</label><input id="f-title"></div>
+      <div class="field"><label for="f-dept">Department</label><select id="f-dept"><option>Engineering</option><option>Design</option><option>Sales</option></select></div>
+      <div class="field"><label for="f-mgr">Manager</label><input id="f-mgr"></div>
+      <div class="field"><label for="f-start">Start date</label><input id="f-start" type="date"></div>
+      <div class="field"><label for="f-loc">Office location</label><input id="f-loc"></div>
+      <p class="demo-note">↑ Seven fields in an 480px-wide box. On a laptop this already scrolls; on a phone it's most of the fields at once.</p>
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" data-close-modal="formModalOverlay">Cancel</button><button class="btn btn-primary" data-close-modal="formModalOverlay">Create</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="tableModalOverlay">
+  <div class="modal-box wide" role="dialog" aria-modal="true" aria-labelledby="tableModalTitle">
+    <div class="modal-head"><strong id="tableModalTitle">Select account</strong><button class="modal-close" aria-label="Close" data-close-modal="tableModalOverlay">✕</button></div>
+    <div class="modal-body">
+      <div style="overflow-x:auto; border:1px solid var(--hairline); border-radius:var(--radius-md);">
+        <table class="demo-table" style="min-width:640px;">
+          <thead><tr><th scope="col">Account</th><th scope="col">Owner</th><th scope="col">Region</th><th scope="col">Tier</th><th scope="col">Renewal</th><th scope="col">Revenue</th><th scope="col">Status</th></tr></thead>
+          <tbody>
+            <tr><td>Acme Corp</td><td>J. Diaz</td><td>NA</td><td>Enterprise</td><td>Sep 2026</td><td class="num">$120k</td><td>Active</td></tr>
+            <tr><td>Globex</td><td>R. Patel</td><td>EMEA</td><td>Growth</td><td>Nov 2026</td><td class="num">$48k</td><td>Active</td></tr>
+            <tr><td>Initech</td><td>S. Lee</td><td>APAC</td><td>Starter</td><td>Jan 2027</td><td class="num">$9k</td><td>At risk</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="demo-note">↑ Scroll the table sideways, then try scrolling the modal itself — two independent scroll zones stacked inside a small box.</p>
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" data-close-modal="tableModalOverlay">Cancel</button></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- theme toggle ---------- */
+  var root = document.documentElement;
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+  var label = document.getElementById('themeLabel');
+  var saved = localStorage.getItem('a11y-theme');
+  if(saved){ root.setAttribute('data-theme', saved); }
+  function reflectTheme(){
+    var isDark = getComputedStyle(root).colorScheme.indexOf('dark') !== -1;
+    toggle.setAttribute('aria-pressed', String(isDark));
+    icon.textContent = isDark ? '◑' : '◐';
+    label.textContent = isDark ? 'Light mode' : 'Dark mode';
+  }
+  reflectTheme();
+  toggle.addEventListener('click', function(){
+    var current = root.getAttribute('data-theme');
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next;
+    if(!current){ next = prefersDark ? 'light' : 'dark'; }
+    else { next = current === 'dark' ? 'light' : 'dark'; }
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('a11y-theme', next);
+    reflectTheme();
+  });
+
+  /* ---------- page router ---------- */
+  var pages = ['intro','buttons','modals','tables'];
+  var navLinks = document.querySelectorAll('.nav-link[data-nav]');
+
+  function showPage(id){
+    if(pages.indexOf(id) === -1) id = 'intro';
+    pages.forEach(function(p){
+      var el = document.getElementById('page-' + p);
+      if(el) el.classList.toggle('active', p === id);
+    });
+    navLinks.forEach(function(l){
+      if(l.getAttribute('data-nav') === id){ l.setAttribute('aria-current','page'); }
+      else { l.removeAttribute('aria-current'); }
+    });
+    var heading = document.getElementById('page-' + id);
+    if(heading){
+      var h1 = heading.querySelector('h1');
+      if(h1){ h1.setAttribute('tabindex','-1'); h1.focus({preventScroll:true}); }
+    }
+    window.scrollTo(0,0);
+  }
+
+  function routeFromHash(){
+    var hash = window.location.hash.replace('#/', '') || 'intro';
+    showPage(hash);
+  }
+  window.addEventListener('hashchange', routeFromHash);
+  routeFromHash();
+
+  /* ---------- component tabs (Component / In Use) ---------- */
+  document.querySelectorAll('.tablist').forEach(function(tablist){
+    var tabs = Array.prototype.slice.call(tablist.querySelectorAll('[role="tab"]'));
+    tabs.forEach(function(tab, i){
+      tab.addEventListener('click', function(){ activateTab(tab); });
+      tab.addEventListener('keydown', function(e){
+        var idx = tabs.indexOf(tab);
+        if(e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
+          e.preventDefault();
+          var next = e.key === 'ArrowRight' ? (idx+1)%tabs.length : (idx-1+tabs.length)%tabs.length;
+          tabs[next].focus();
+          activateTab(tabs[next]);
+        }
+      });
+    });
+    function activateTab(tab){
+      tabs.forEach(function(t){
+        var selected = t === tab;
+        t.setAttribute('aria-selected', String(selected));
+        t.tabIndex = selected ? 0 : -1;
+        var panel = document.getElementById(t.getAttribute('aria-controls'));
+        if(panel) panel.hidden = !selected;
+      });
+    }
+  });
+
+  /* ---------- simulated screen-reader captions ---------- */
+  document.querySelectorAll('[data-sr]').forEach(function(el){
+    el.addEventListener('focus', function(){ announce(el, el.getAttribute('data-sr')); });
+    el.addEventListener('mouseenter', function(){ if(document.activeElement !== el) announce(el, el.getAttribute('data-sr')); });
+  });
+  function announce(el, text){
+    var demo = el.closest('.demo');
+    if(!demo) return;
+    var strip = demo.querySelector('[data-sr-out]');
+    if(!strip) return;
+    strip.classList.remove('empty');
+    strip.querySelector('.txt').textContent = '"' + text + '"';
+  }
+
+  /* ---------- generic toggle buttons (aria-pressed) ---------- */
+  document.querySelectorAll('[data-toggle]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var pressed = btn.getAttribute('aria-pressed') === 'true';
+      btn.setAttribute('aria-pressed', String(!pressed));
+      var on = btn.getAttribute('data-sr-on'), off = btn.getAttribute('data-sr-off');
+      if(on && off){ btn.setAttribute('data-sr', !pressed ? on : off); announce(btn, !pressed ? on : off); }
+    });
+  });
+
+  /* the deliberately-broken toggle (bad button demo) just flips a class, no state exposed */
+  var badToggle = document.getElementById('badToggle');
+  if(badToggle){
+    badToggle.addEventListener('click', function(){
+      var on = badToggle.classList.toggle('is-on');
+      badToggle.style.background = on ? 'var(--ink)' : '';
+      badToggle.style.color = on ? 'var(--canvas)' : '';
+    });
+  }
+
+  /* ---------- expandable rows ---------- */
+  document.querySelectorAll('[data-expand-target]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var target = document.getElementById(btn.getAttribute('data-expand-target'));
+      var expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!expanded));
+      if(target) target.style.display = expanded ? 'none' : 'block';
+      var on = btn.getAttribute('data-sr-on'), off = btn.getAttribute('data-sr-off');
+      if(on && off) announce(btn, !expanded ? on : off);
+    });
+  });
+
+  /* ---------- modal system ---------- */
+  var lastTrigger = null;
+
+  function openModal(overlayId, trigger){
+    var overlay = document.getElementById(overlayId);
+    if(!overlay) return;
+    lastTrigger = trigger;
+    overlay.classList.add('open');
+    var box = overlay.querySelector('.modal-box');
+    var focusTarget = box.querySelector('[autofocus]') || box.querySelector('h2, h3, strong, input, button');
+    if(focusTarget){ focusTarget.setAttribute('tabindex', focusTarget.hasAttribute('tabindex') ? focusTarget.getAttribute('tabindex') : '-1'); focusTarget.focus(); }
+    overlay.addEventListener('keydown', trapHandler);
+  }
+  function closeModal(overlayId){
+    var overlay = document.getElementById(overlayId);
+    if(!overlay) return;
+    overlay.classList.remove('open');
+    overlay.removeEventListener('keydown', trapHandler);
+    if(lastTrigger){ lastTrigger.focus(); lastTrigger = null; }
+  }
+  function trapHandler(e){
+    var overlay = e.currentTarget;
+    if(e.key === 'Escape'){ closeModal(overlay.id); return; }
+    if(e.key !== 'Tab') return;
+    var focusables = overlay.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if(!focusables.length) return;
+    var first = focusables[0], last = focusables[focusables.length - 1];
+    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  }
+
+  document.querySelectorAll('[data-close-modal]').forEach(function(btn){
+    btn.addEventListener('click', function(){ closeModal(btn.getAttribute('data-close-modal')); });
+  });
+  document.querySelectorAll('.modal-overlay').forEach(function(overlay){
+    overlay.addEventListener('click', function(e){ if(e.target === overlay) closeModal(overlay.id); });
+  });
+
+  var openGoodModal = document.getElementById('openGoodModal');
+  if(openGoodModal) openGoodModal.addEventListener('click', function(){ openModal('goodModalOverlay', openGoodModal); });
+
+  var openFormModal = document.getElementById('openFormModal');
+  if(openFormModal) openFormModal.addEventListener('click', function(){ openModal('formModalOverlay', openFormModal); });
+
+  var openTableModal = document.getElementById('openTableModal');
+  if(openTableModal) openTableModal.addEventListener('click', function(){ openModal('tableModalOverlay', openTableModal); });
+
+  /* the deliberately broken modal: no focus move, no trap, no escape, no return */
+  var openBadModal = document.getElementById('openBadModal');
+  var badModalOverlay = document.getElementById('badModalOverlay');
+  if(openBadModal){
+    openBadModal.addEventListener('click', function(){ badModalOverlay.classList.add('open'); });
+  }
+  if(badModalOverlay){
+    badModalOverlay.addEventListener('click', function(e){ if(e.target === badModalOverlay) badModalOverlay.classList.remove('open'); });
+  }
+  var badModalCloseFake = document.getElementById('badModalCloseFake');
+  if(badModalCloseFake){
+    badModalCloseFake.addEventListener('click', function(){ badModalOverlay.classList.remove('open'); });
+  }
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && badModalOverlay && badModalOverlay.classList.contains('open')){
+      badModalOverlay.classList.add('open');
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
