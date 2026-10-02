@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Toggles — Accessibility, by Example</title>
+<meta name="description" content="Everything a toggle switch needs to be accessible: visible off states, connected labels, announced state, keyboard support and the traps around wording and instant changes.">
+<script>try{var t=localStorage.getItem('a11y-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page="toggles">
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+<main id="main" tabindex="-1"><div class="wrap">
+
+<header class="hero">
+  <p class="eyebrow">Component 2 of 4</p>
+  <h1>Toggles</h1>
+  <p class="lede">A toggle, or switch, turns one thing on or off, straight away. It is so small that nobody reviews it, which is why it fails in more ways than almost any other control: Is it on? Is it even a control? What did I just change?</p>
+</header>
+
+<section class="panel" aria-labelledby="anat-h">
+  <h2 id="anat-h" style="margin-bottom:6px">Everything a toggle needs</h2>
+  <p class="cap" style="margin-bottom:18px">Each number is one requirement. Pick any to jump to it, or read top to bottom.</p>
+  <div class="anatomy">
+    <div class="stage col" role="group" aria-label="Annotated settings panel">
+      <div class="setrow" aria-hidden="true"><span class="lab">Wi-Fi<small>On</small></span><span class="sw on"></span></div>
+      <div class="pins"><a class="pin" href="#t-label"></a><a class="pin" href="#t-colour"></a><a class="pin" href="#t-state"></a><a class="pin" href="#t-wording"></a></div>
+      <div class="setrow" aria-hidden="true"><span class="lab">Bluetooth<small>Off</small></span><span class="sw"></span></div>
+      <div class="pins"><a class="pin" href="#t-contrast"></a><a class="pin" href="#t-size"></a></div>
+      <div class="setrow ring" aria-hidden="true"><span class="lab">Email alerts<small>Saved</small></span><span class="sw on"></span></div>
+      <div class="pins"><a class="pin" href="#t-keyboard"></a><a class="pin" href="#t-feedback"></a><a class="pin" href="#t-checkbox"></a><a class="pin" href="#t-sides"></a><a class="pin" href="#t-surprise"></a></div>
+    </div>
+    <div class="alist" id="anatomy-list"></div>
+  </div>
+</section>
+
+<!-- ================= LEVEL 1 ================= -->
+<section class="tier" data-tier="1">
+  <div class="tier-head"><h2>You already know this</h2><p>Contrast and size again, but on a toggle the failure is specific: the <em>off</em> state, and the tiny knob.</p></div>
+
+  <article class="topic" id="t-contrast" data-who="lowvision,everyone" data-check="The switch is clearly visible in both states: track and knob have 3 : 1 contrast against what is behind them, on and off.">
+    <h3>The off state has to be visible too</h3>
+    <p class="lead">Designers polish the "on" state in the brand colour and leave "off" as pale grey on white. Then nobody can tell whether the switch is off, disabled, or still loading. Both states need to be clearly visible as a control.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col light"><div class="row between"><span>Bluetooth</span><span class="sw low"></span></div><div class="row between"><span>Wi-Fi</span><span class="sw low on"></span></div></div>
+        <p class="cap">The off track is about 1.1 : 1 against the page. On a bright screen outdoors, it is gone.</p>
+      </div>
+      <div class="demo good">
+        <div class="box col light"><div class="row between"><span>Bluetooth</span><span class="sw" style="border-color:#77736B;background:#fff"></span></div><div class="row between"><span>Wi-Fi</span><span class="sw on" style="background:#2B4EDB;border-color:#2B4EDB"></span></div></div>
+        <p class="cap">A firm outline when off, a solid fill when on. Both pass 3 : 1.</p>
+      </div>
+    </div>
+    <p class="figma">Check the off track against the page, the knob against the track, and the on fill against the page. Each needs 3 : 1. Make "disabled" look different from "off", for example by also greying the label.</p>
+    <details class="rule">WCAG 1.4.11 Non-text Contrast (AA): the parts needed to identify a control and its state need 3 : 1 against adjacent colours.</details>
+  </article>
+
+  <article class="topic" id="t-size" data-who="motor,touch,everyone" data-check="The whole row (label and switch) is the tap target, not just the knob.">
+    <h3>Make the whole row the target</h3>
+    <p class="lead">A switch is often 30 px wide with a 12 px knob. Asking people to hit that is unkind. The fix costs nothing: let the label and the whole row toggle the switch.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col"><div class="setrow"><span class="lab" style="cursor:default">Location access</span><span class="sw mini" data-fake-switch></span></div></div>
+        <p class="cap">Only the 30 × 16 px switch responds. Click the words and nothing happens.</p>
+      </div>
+      <div class="demo good">
+        <div class="box col"><div class="setrow hit"><label for="sz1">Location access</label><button class="sw" role="switch" aria-checked="false" id="sz1"></button></div></div>
+        <p class="cap">Click the words or the switch. Either works.</p>
+      </div>
+    </div>
+    <p class="try">Click the words "Location access" in both examples.</p>
+    <p class="figma">Draw the hit area as the full row height, at least 44 px on touch. Leave space between rows so neighbouring switches are not hit by mistake.</p>
+    <details class="rule">WCAG 2.5.8 Target Size (Minimum), AA: 24 × 24 CSS px. A label connected to its control extends the target for free.</details>
+  </article>
+</section>
+
+<!-- ================= LEVEL 2 ================= -->
+<section class="tier" data-tier="2">
+  <div class="tier-head"><h2>What you're probably missing</h2><p>A switch says only "on" or "off". Everything else, such as what it controls and that it is a switch at all, has to be designed in.</p></div>
+
+  <article class="topic" id="t-label" data-who="sr,voice,cognitive" data-check="Every switch has a visible label that is connected to it, so it is read out together with the state.">
+    <h3>A label that is connected, not just nearby</h3>
+    <p class="lead">You see "Wi-Fi" next to a switch and know they belong together. A screen reader only knows that if the two are connected in code. Otherwise it reads a settings screen as "switch, on. switch, off. switch, off."</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col"><div class="setrow"><span class="lab" style="cursor:default">Wi-Fi</span><button class="sw" role="switch" aria-checked="true" data-sr="switch, {state}"></button></div><div class="setrow"><span class="lab" style="cursor:default">Bluetooth</span><button class="sw" role="switch" aria-checked="false" data-sr="switch, {state}"></button></div></div>
+        <div class="sr" data-hint="Tab to each switch"></div>
+      </div>
+      <div class="demo good">
+        <div class="box col"><div class="setrow hit"><label for="l1">Wi-Fi</label><button class="sw" role="switch" aria-checked="true" id="l1" data-sr="Wi-Fi, switch, {state}"></button></div><div class="setrow hit"><label for="l2">Bluetooth</label><button class="sw" role="switch" aria-checked="false" id="l2" data-sr="Bluetooth, switch, {state}"></button></div></div>
+        <div class="sr" data-hint="Tab to each switch"></div>
+      </div>
+    </div>
+    <p class="try">Tab through both panels and read the strip. They look the same. Only the right one says what you are switching.</p>
+    <p class="figma">Never ship a switch without a text label, even in a dense table. If the label must be hidden visually, write the hidden name in the spec.</p>
+    <details class="rule">WCAG 1.3.1 Info and Relationships (A), 4.1.2 Name, Role, Value (A) and 3.3.2 Labels or Instructions (A).</details>
+  </article>
+
+  <article class="topic" id="t-colour" data-who="colour,lowvision" data-check="On and off differ by knob position (and ideally a word or icon), not by colour alone.">
+    <h3>On and off by more than colour</h3>
+    <p class="lead">Green for on and red for off looks obvious until you cannot tell green from red. The knob position is the real signal. For anything important, add the word.</p>
+    <div class="simbar"><button type="button" class="simbtn" data-sim="cb" aria-pressed="false"><i data-i="eye"></i>See it with red-green colour blindness</button></div>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col light"><div class="row between"><span>Auto-renew</span><span class="sw flat on"></span></div><div class="row between"><span>Share usage data</span><span class="sw flat"></span></div></div>
+        <p class="cap">A pill that only changes from red to green. Which one is on?</p>
+      </div>
+      <div class="demo good">
+        <div class="box col light"><div class="row between"><span>Auto-renew</span><span class="row"><b>On</b><span class="sw on" style="background:#2B4EDB;border-color:#2B4EDB"></span></span></div><div class="row between"><span>Share usage data</span><span class="row"><b>Off</b><span class="sw" style="border-color:#77736B;background:#fff"></span></span></div></div>
+        <p class="cap">The knob moves, the fill changes and the word says it.</p>
+      </div>
+    </div>
+    <p class="try">Turn on the colour blindness filter and look at the left panel.</p>
+    <p class="figma">View the frame in greyscale. On and off must still be different.</p>
+    <details class="rule">WCAG 1.4.1 Use of Color (A).</details>
+  </article>
+
+  <article class="topic" id="t-state" data-who="sr" data-check="It is announced as a switch, with its current state: “Dark mode, switch, on”.">
+    <h3>It says what it is, and its state</h3>
+    <p class="lead">A sighted user gets three facts at a glance: this is a switch, it is about dark mode, it is on. A screen reader user needs the same three. Without them they hear "button" and have to press it to find out what happens.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col"><div class="setrow"><span class="lab" style="cursor:default">Dark mode</span><button class="sw" data-fake-switch data-sr="Dark mode, button"></button></div></div>
+        <p class="cap">The picture changes. The announcement does not.</p>
+        <div class="sr" data-hint="Tab to the switch, then press Space twice"></div>
+      </div>
+      <div class="demo good">
+        <div class="box col"><div class="setrow hit"><label for="s1">Dark mode</label><button class="sw" role="switch" aria-checked="false" id="s1" data-sr="Dark mode, switch, {state}"></button></div></div>
+        <p class="cap">Name, role and state, updated on every press.</p>
+        <div class="sr" data-hint="Tab to the switch, then press Space twice"></div>
+      </div>
+    </div>
+    <p class="figma">In your component notes write the three parts: name "Dark mode", type "switch", states "on / off". That is the whole brief a developer needs.</p>
+    <details class="rule">WCAG 4.1.2 Name, Role, Value (A). Developers use <code>role="switch"</code> with <code>aria-checked</code>, or a native checkbox styled as a switch.</details>
+  </article>
+
+  <article class="topic" id="t-keyboard" data-who="keyboard,voice" data-check="It can be reached with Tab and flipped with Space, with a visible focus ring.">
+    <h3>Reach it with Tab, flip it with Space</h3>
+    <p class="lead">Custom switches are often a drawing with a click attached. They never receive focus, so a keyboard user cannot change the setting at all. No drag gesture should be required either.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col"><div class="setrow"><span class="lab" style="cursor:default">Autoplay videos</span><span class="sw" data-fake-switch></span></div></div>
+        <p class="cap">Works with a mouse. Tab passes straight over it.</p>
+      </div>
+      <div class="demo good">
+        <div class="box col"><div class="setrow hit"><label for="k1">Autoplay videos</label><button class="sw" role="switch" aria-checked="false" id="k1"></button></div></div>
+        <p class="cap">Tab lands on it with a visible ring. Space flips it.</p>
+      </div>
+    </div>
+    <p class="try">Put the mouse down. Try to change "Autoplay videos" in both panels using only <kbd>Tab</kbd> and <kbd>Space</kbd>.</p>
+    <p class="figma">Add a focus variant to the switch component. If your design allows dragging the knob, a single tap or key press must do the same thing.</p>
+    <details class="rule">WCAG 2.1.1 Keyboard (A), 2.4.7 Focus Visible (AA) and 2.5.7 Dragging Movements (AA).</details>
+  </article>
+
+  <article class="topic" id="t-wording" data-who="cognitive,sr,everyone" data-check="The label names the thing (“Notifications”), never the action or a negative (“Disable notifications”).">
+    <h3>Name the thing, not the action</h3>
+    <p class="lead">"Disable notifications: on." Are notifications on or off? A label that describes an action, or uses a negative, turns every switch into a logic puzzle. Name the feature and let the switch say on or off.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col"><div class="setrow hit"><label for="w1">Disable notifications</label><button class="sw" role="switch" aria-checked="true" id="w1" data-sr="Disable notifications, switch, {state}"></button></div><div class="setrow hit"><label for="w2">Don't show tips</label><button class="sw" role="switch" aria-checked="false" id="w2" data-sr="Don't show tips, switch, {state}"></button></div></div>
+        <div class="sr" data-hint="Tab to a switch and decide what is actually on"></div>
+      </div>
+      <div class="demo good">
+        <div class="box col"><div class="setrow hit"><label for="w3">Notifications</label><button class="sw" role="switch" aria-checked="false" id="w3" data-sr="Notifications, switch, {state}"></button></div><div class="setrow hit"><label for="w4">Tips</label><button class="sw" role="switch" aria-checked="true" id="w4" data-sr="Tips, switch, {state}"></button></div></div>
+        <div class="sr" data-hint="Tab to a switch"></div>
+      </div>
+    </div>
+    <p class="figma">Read each label followed by "is on". "Notifications is on" works. "Disable notifications is on" does not. Also keep the label fixed: it should not change text when toggled.</p>
+    <details class="rule">WCAG 3.3.2 Labels or Instructions (A) and 2.4.6 Headings and Labels (AA).</details>
+  </article>
+</section>
+
+<!-- ================= LEVEL 3 ================= -->
+<section class="tier" data-tier="3">
+  <div class="tier-head"><h2>Senior-level traps</h2><p>The switch itself is fine. The mistake is using a switch here at all, or forgetting what happens after it flips.</p></div>
+
+  <article class="topic" id="t-checkbox" data-who="cognitive,everyone" data-check="Switches are only used for instant changes; inside a form with a Save button, a checkbox is used instead.">
+    <h3>Switch or checkbox?</h3>
+    <p class="lead">A switch means "this happens now", like a light switch. A checkbox means "this is my choice, apply it when I press Save". Put a switch inside a form with a Save button and nobody knows whether it has already taken effect.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col"><div class="field"><label for="cb1">Display name</label><input id="cb1" type="text" value="Priya" readonly></div><div class="setrow"><span class="lab" style="cursor:default">Public profile</span><span class="sw on"></span></div><span class="btn" style="align-self:flex-start">Save changes</span></div>
+        <p class="cap">Is the profile public already, or only after Save?</p>
+      </div>
+      <div class="demo good">
+        <div class="box col"><div class="field"><label for="cb2">Display name</label><input id="cb2" type="text" value="Priya" readonly></div><label class="row" style="font-weight:600"><input type="checkbox" checked style="width:18px;height:18px"> Make my profile public</label><span class="btn" style="align-self:flex-start">Save changes</span></div>
+        <p class="cap">A checkbox is a choice. Save applies it. No ambiguity.</p>
+      </div>
+    </div>
+    <p class="figma">Rule of thumb: instant effect, use a switch. Needs Save, use a checkbox. One of several options, use radio buttons.</p>
+    <details class="rule">A convention rather than a WCAG criterion, but it protects 3.2.2 On Input (A): changing a setting should never do something the person did not expect.</details>
+  </article>
+
+  <article class="topic" id="t-feedback" data-who="sr,cognitive,everyone" data-check="After a switch is flipped, the result is confirmed in words (“Saved”) and failures are shown and announced.">
+    <h3>Instant changes still need confirmation</h3>
+    <p class="lead">Flipping a switch usually saves something on a server. That can take time, or fail. If the switch simply moves, nobody knows whether the change stuck, and a silent failure that flips it back is worse.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col"><div class="setrow hit"><label for="f1">Email alerts</label><button class="sw" role="switch" aria-checked="false" id="f1" data-sr="Email alerts, switch, {state}"></button></div></div>
+        <p class="cap">It moves. Did it save? If the save fails, will anyone be told?</p>
+        <div class="sr" data-hint="Flip the switch"></div>
+      </div>
+      <div class="demo good">
+        <div class="box col"><div class="setrow hit"><label for="f2">Email alerts<small data-save-status>&nbsp;</small></label><button class="sw" role="switch" aria-checked="false" id="f2" data-save data-name="Email alerts" data-sr="Email alerts, switch, {state}"></button></div></div>
+        <p class="cap">"Saving…" then "Saved" appears as text, and is announced.</p>
+        <div class="sr" data-hint="Flip the switch"></div>
+      </div>
+    </div>
+    <p class="figma">Design three moments: saving, saved, and failed. For failed, write the message and show the switch returning to its old position with an explanation.</p>
+    <details class="rule">WCAG 4.1.3 Status Messages (AA) and 3.3.1 Error Identification (A).</details>
+  </article>
+
+  <article class="topic" id="t-sides" data-who="cognitive,sr,colour" data-check="A switch is never used to choose between two options (Monthly / Yearly); a segmented control or radio buttons are used.">
+    <h3>A switch between two options</h3>
+    <p class="lead">"Monthly [switch] Yearly." Which side is selected? A switch has one label and two states, on and off. Use it to pick between two <em>things</em> and neither sighted users nor screen readers can say which is chosen.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center"><span>Monthly</span><button class="sw" role="switch" aria-checked="true" data-sr="switch, {state}"></button><span>Yearly</span></div>
+        <p class="cap">"On" means… yearly? The highlighted side? Nobody knows.</p>
+        <div class="sr" data-hint="Tab to the switch and flip it"></div>
+      </div>
+      <div class="demo good">
+        <div class="box center"><div class="seg" role="radiogroup" aria-label="Billing period"><label><input type="radio" name="bill" data-sr="Billing period: Monthly, radio button, 1 of 2, selected" checked><span>Monthly</span></label><label><input type="radio" name="bill" data-sr="Billing period: Yearly, radio button, 2 of 2, selected"><span>Yearly</span></label></div></div>
+        <p class="cap">Two named options. The chosen one is filled, bold and announced.</p>
+        <div class="sr" data-hint="Tab in, then use the arrow keys"></div>
+      </div>
+    </div>
+    <p class="figma">If you can label both ends, it is not a switch. Use a segmented control, tabs or radio buttons.</p>
+    <details class="rule">WCAG 4.1.2 Name, Role, Value (A) and 1.3.1 (A). A two-option choice is a radio group.</details>
+  </article>
+
+  <article class="topic" id="t-surprise" data-who="cognitive,sr,keyboard" data-check="Flipping a switch never opens a dialog, navigates away or submits anything without warning.">
+    <h3>No surprises when it flips</h3>
+    <p class="lead">A switch should change one setting and nothing else. If flipping it opens a setup flow, jumps to another page or submits a form, the person has lost their place. For a screen reader user the whole page just changed under them.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col"><div class="setrow"><span class="lab" style="cursor:default">Two-step verification</span><span class="sw"></span></div><span class="hint"><i data-i="arrow"></i> Flipping it jumps to a five-screen setup flow</span></div>
+        <p class="cap">It looks like a setting. It is actually the start of a task.</p>
+      </div>
+      <div class="demo good">
+        <div class="box col"><div class="setrow"><span class="lab" style="cursor:default">Two-step verification<small>Off</small></span><span class="btn sec sm">Set up<i data-i="arrow"></i></span></div></div>
+        <p class="cap">A button says honestly that a task begins. The status is shown as text.</p>
+      </div>
+    </div>
+    <p class="figma">If the change needs more steps, confirmation or another screen, use a button or a link. If a switch must trigger a confirmation, say so in the label or helper text.</p>
+    <details class="rule">WCAG 3.2.2 On Input (A): changing a control must not cause an unexpected change of context.</details>
+  </article>
+</section>
+
+<section class="section" aria-labelledby="quiz-h">
+  <h2 id="quiz-h">Spot the problem</h2>
+  <p class="sub">Four quick questions. You get the reason straight away.</p>
+  <div class="quiz" id="qt" data-quiz><script type="application/json">[
+    {"q":"A switch is labelled “Disable tracking” and is currently on. What is wrong?","a":["Nothing, it is clear","The label is a negative action, so “on” is confusing. Name the thing: “Tracking”","The switch should be bigger"],"c":1,"why":"Read it as “Tracking is off”. Simple.","hint":"Say it out loud: “Disable tracking is on”."},
+    {"q":"A pricing page has “Monthly (switch) Yearly”. What should it be?","a":["A switch is fine","A segmented control or two radio buttons","A dropdown with a Save button"],"c":1,"why":"Two named options is a choice, not on/off.","hint":"Can you label both ends?"},
+    {"q":"A profile form has a “Public profile” switch and a Save button below. What is the risk?","a":["People cannot tell whether the switch has already taken effect","The switch is too colourful","There is no risk"],"c":0,"why":"Inside a form with Save, use a checkbox.","hint":"Switch means now. Save means later."},
+    {"q":"A screen reader reads a settings page as “switch, on. switch, off. switch, off.” What is missing?","a":["Bigger switches","Labels connected to each switch","A different colour for off"],"c":1,"why":"The name, role and state must be read together.","hint":"What is each switch for?"}
+  ]</script></div>
+</section>
+
+<section class="section panel check" id="checklist" aria-labelledby="check-h">
+  <div class="row between" style="margin-bottom:8px"><h2 id="check-h">Toggle checklist</h2><button type="button" class="btn sec sm no-print" data-print><i data-i="print"></i>Print checklist</button></div>
+  <p class="cap" style="margin-bottom:10px">Use this in design review. Ticking an item also marks that topic as learned.</p>
+  <div id="checklist-body"></div>
+</section>
+
+<nav class="next" aria-label="Next page">
+  <a class="cta alt" href="buttons.html"><i data-i="back"></i>Buttons</a>
+  <a class="cta" href="modals.html">Next: Modals<i data-i="arrow"></i></a>
+</nav>
+
+</div></main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

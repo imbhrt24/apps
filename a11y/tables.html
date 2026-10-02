@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tables — Accessibility, by Example</title>
+<meta name="description" content="Everything a data table needs to be accessible: real headers, announced sorting, status beyond colour, and why nested tables, hover actions and infinite scroll fail.">
+<script>try{var t=localStorage.getItem('a11y-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page="tables">
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+<main id="main" tabindex="-1"><div class="wrap">
+
+<header class="hero">
+  <p class="eyebrow">Component 4 of 4</p>
+  <h1>Tables</h1>
+  <p class="lede">You scan a table with your eyes, jumping freely between rows and columns. A screen reader reads it one cell at a time, in a straight line. So the <em>structure</em> of the table has to carry the meaning that your eyes get for free.</p>
+</header>
+
+<section class="panel" aria-labelledby="anat-h">
+  <h2 id="anat-h" style="margin-bottom:6px">Everything a table needs</h2>
+  <p class="cap" style="margin-bottom:18px">Each number is one requirement. Pick any to jump to it, or read top to bottom.</p>
+  <div class="anatomy">
+    <div class="stage col" role="group" aria-label="Annotated table">
+      <div class="row"><b>Invoices, October</b><a class="pin" href="#tb-caption"></a></div>
+      <div class="tblwrap" aria-hidden="true">
+        <table class="tbl zebra">
+          <thead><tr><th>Client</th><th>Status</th><th class="num">Amount</th></tr></thead>
+          <tbody><tr><td>Acme Corp</td><td><span class="badge ok">Paid</span></td><td class="num">$1,800</td></tr><tr><td>Globex</td><td><span class="badge err">Overdue</span></td><td class="num">$640</td></tr></tbody>
+        </table>
+      </div>
+      <div class="row"><span class="hint">Header row:</span><div class="pins"><a class="pin" href="#tb-headers"></a><a class="pin" href="#tb-sort"></a><a class="pin" href="#tb-merge"></a></div></div>
+      <div class="row"><span class="hint">Cells:</span><div class="pins"><a class="pin" href="#tb-read"></a><a class="pin" href="#tb-align"></a><a class="pin" href="#tb-colour"></a><a class="pin" href="#tb-states"></a></div></div>
+      <div class="row"><span class="hint">Rows and actions:</span><div class="pins"><a class="pin" href="#tb-nested"></a><a class="pin" href="#tb-hover"></a><a class="pin" href="#tb-rowclick"></a><a class="pin" href="#tb-select"></a></div></div>
+      <div class="row"><span class="hint">The whole table:</span><div class="pins"><a class="pin" href="#tb-mobile"></a><a class="pin" href="#tb-scroll"></a></div></div>
+    </div>
+    <div class="alist" id="anatomy-list"></div>
+  </div>
+</section>
+
+<!-- ================= LEVEL 1 ================= -->
+<section class="tier" data-tier="1">
+  <div class="tier-head"><h2>You already know this</h2><p>Tables are where designers shrink text and fade colours to fit more in. Readability comes first.</p></div>
+
+  <article class="topic" id="tb-read" data-who="lowvision,cognitive,everyone" data-check="Table text is at least 14 px with 4.5 : 1 contrast, and rows are clearly separated by lines or banding.">
+    <h3>Readable text and rows you can follow</h3>
+    <p class="lead">To squeeze in more columns, text drops to 11 px, turns grey and the row lines disappear. In a wide table the eye then slips from one row to the next halfway across. That is a real problem at high zoom, where only part of a row is visible.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box light" style="padding:8px"><table class="tbl faint"><tbody><tr><td>Acme Corp</td><td>Enterprise</td><td>Active</td><td>$4,800</td></tr><tr><td>Globex Ltd</td><td>Team</td><td>Paused</td><td>$900</td></tr><tr><td>Initech</td><td>Team</td><td>Active</td><td>$1,320</td></tr></tbody></table></div>
+        <p class="cap">11 px light grey, no separators. Which amount belongs to Globex?</p>
+      </div>
+      <div class="demo good">
+        <div class="tblwrap"><table class="tbl zebra"><tbody><tr><td>Acme Corp</td><td>Enterprise</td><td>Active</td><td class="num">$4,800</td></tr><tr><td>Globex Ltd</td><td>Team</td><td>Paused</td><td class="num">$900</td></tr><tr><td>Initech</td><td>Team</td><td>Active</td><td class="num">$1,320</td></tr></tbody></table></div>
+        <p class="cap">14 px, full contrast, a line and soft banding per row.</p>
+      </div>
+    </div>
+    <p class="figma">Keep body text at 14 px or more and 4.5 : 1. Use row lines, banding, or both. If the table does not fit, remove or hide columns instead of shrinking the text.</p>
+    <details class="rule">WCAG 1.4.3 Contrast (Minimum), AA, and 1.4.4 Resize Text, AA. Row separators that carry meaning need 3 : 1 under 1.4.11.</details>
+  </article>
+
+  <article class="topic" id="tb-align" data-who="lowvision,cognitive,everyone" data-check="Text is left-aligned, numbers are right-aligned with equal-width digits, and headers align with their column.">
+    <h3>Alignment that helps comparison</h3>
+    <p class="lead">Numbers are compared by their digits, so they must line up on the right. Text is read from its start, so it lines up on the left. Centring everything looks neat and makes both jobs harder, most of all for someone magnified into one corner of the table.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="tblwrap"><table class="tbl"><thead><tr><th class="ctr">Client</th><th class="ctr">Amount</th></tr></thead><tbody><tr><td class="ctr">Acme Corp</td><td class="ctr">$12,040</td></tr><tr><td class="ctr">Globex</td><td class="ctr">$985</td></tr><tr><td class="ctr">Initech Holdings</td><td class="ctr">$101,300</td></tr></tbody></table></div>
+        <p class="cap">Centred. Which amount is largest? You have to read each one.</p>
+      </div>
+      <div class="demo good">
+        <div class="tblwrap"><table class="tbl"><thead><tr><th>Client</th><th class="num">Amount</th></tr></thead><tbody><tr><td>Acme Corp</td><td class="num">$12,040</td></tr><tr><td>Globex</td><td class="num">$985</td></tr><tr><td>Initech Holdings</td><td class="num">$101,300</td></tr></tbody></table></div>
+        <p class="cap">The longest number is the largest. The shape tells you.</p>
+      </div>
+    </div>
+    <p class="figma">Left-align text, right-align numbers, and align each header with its column. Turn on tabular (equal-width) figures in your type settings.</p>
+    <details class="rule">A readability convention rather than a WCAG criterion. It supports people with low vision and cognitive disabilities directly.</details>
+  </article>
+</section>
+
+<!-- ================= LEVEL 2 ================= -->
+<section class="tier" data-tier="2">
+  <div class="tier-head"><h2>What you're probably missing</h2><p>Now put the mouse down and listen to the table. These six decide whether it makes sense when read one cell at a time.</p></div>
+
+  <article class="topic" id="tb-headers" data-who="sr" data-check="Column headers and the identifying cell of each row are marked as headers, so every cell is read with its context.">
+    <h3>Real headers, for columns and rows</h3>
+    <p class="lead">When a screen reader moves to a cell it reads the headers for that cell first: "Acme Corp, Status, Active". That only happens if the header cells are marked as headers. Bold text is not a header. Without them the user hears "Active" and has to remember which column they are in.</p>
+    <div class="pair">
+      <div class="demo bad" data-stepper>
+        <div class="tblwrap"><table class="tbl"><tbody>
+          <tr><td data-sr="Client"><b>Client</b></td><td data-sr="Plan"><b>Plan</b></td><td data-sr="Status"><b>Status</b></td></tr>
+          <tr><td data-sr="Acme Corp">Acme Corp</td><td data-sr="Enterprise">Enterprise</td><td data-sr="Active">Active</td></tr>
+          <tr><td data-sr="Globex">Globex</td><td data-sr="Team">Team</td><td data-sr="Paused">Paused</td></tr>
+        </tbody></table></div>
+        <p class="cap">The top row is only bold text.</p>
+        <div class="sr" data-hint="Press “Next cell” to move like a screen reader"></div>
+      </div>
+      <div class="demo good" data-stepper>
+        <div class="tblwrap"><table class="tbl"><thead>
+          <tr><th scope="col" data-sr="Client, column header">Client</th><th scope="col" data-sr="Plan, column header">Plan</th><th scope="col" data-sr="Status, column header">Status</th></tr></thead><tbody>
+          <tr><th scope="row" data-sr="Client: Acme Corp, row header">Acme Corp</th><td data-sr="Acme Corp, Plan: Enterprise">Enterprise</td><td data-sr="Acme Corp, Status: Active">Active</td></tr>
+          <tr><th scope="row" data-sr="Client: Globex, row header">Globex</th><td data-sr="Globex, Plan: Team">Team</td><td data-sr="Globex, Status: Paused">Paused</td></tr>
+        </tbody></table></div>
+        <p class="cap">Marked column headers, and the client name heads each row.</p>
+        <div class="sr" data-hint="Press “Next cell” to move like a screen reader"></div>
+      </div>
+    </div>
+    <p class="try">Press "Next cell" seven or eight times in each table. On the left, "Paused" arrives with no context. On the right you always know whose status it is.</p>
+    <p class="figma">Mark two things in your spec: which row is the header row, and which column identifies each row (usually the name). Every column needs header text, including the checkbox and "Actions" columns.</p>
+    <details class="rule">WCAG 1.3.1 Info and Relationships (A). Developers use <code>&lt;th scope="col"&gt;</code> and <code>&lt;th scope="row"&gt;</code>.</details>
+  </article>
+
+  <article class="topic" id="tb-caption" data-who="sr,cognitive" data-check="Each table has a title that is announced with it (“Invoices, October”).">
+    <h3>A title for the table</h3>
+    <p class="lead">A dashboard often has three tables on one screen. Screen reader users can jump from table to table, and each one is announced by its title. Without a title they hear "table, 4 columns, 12 rows" three times.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="tblwrap"><table class="tbl"><thead><tr><th>Client</th><th class="num">Amount</th></tr></thead><tbody><tr><td>Acme Corp</td><td class="num">$1,800</td></tr></tbody></table></div>
+        <div class="sr" data-say="table, 2 columns, 12 rows"></div>
+      </div>
+      <div class="demo good">
+        <div class="tblwrap"><table class="tbl"><caption>Unpaid invoices, October</caption><thead><tr><th scope="col">Client</th><th scope="col" class="num">Amount</th></tr></thead><tbody><tr><td>Acme Corp</td><td class="num">$1,800</td></tr></tbody></table></div>
+        <div class="sr" data-say="Unpaid invoices, October, table, 2 columns, 12 rows"></div>
+      </div>
+    </div>
+    <p class="figma">Give every table a visible heading directly above it and note "this heading is the table's title". Include filters in it when they change the meaning: "Unpaid invoices".</p>
+    <details class="rule">WCAG 1.3.1 (A) and 2.4.6 Headings and Labels (AA). Developers use <code>&lt;caption&gt;</code> or connect the heading with <code>aria-labelledby</code>.</details>
+  </article>
+
+  <article class="topic" id="tb-sort" data-who="sr,keyboard,colour" data-check="Sortable headers are buttons, show the direction with an arrow, and announce “sorted ascending / descending”.">
+    <h3>Sorting you can reach and hear</h3>
+    <p class="lead">A small arrow shows you which column is sorted. Two things are usually forgotten: the header has to be a real button so the keyboard can reach it, and the sort direction has to be announced, or a blind user re-sorts in the dark.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="tblwrap"><table class="tbl" data-sort><thead><tr><th scope="col"><button class="thbtn" data-name="Client" data-sr="Client, button">Client<i data-i="up"></i></button></th><th scope="col" class="num"><button class="thbtn" data-name="Amount" data-sr="Amount, button">Amount<i data-i="up"></i></button></th></tr></thead><tbody><tr><td>Globex</td><td class="num">$985</td></tr><tr><td>Acme Corp</td><td class="num">$12,040</td></tr><tr><td>Initech</td><td class="num">$3,300</td></tr></tbody></table></div>
+        <p class="cap">The rows move. The announcement never changes.</p>
+        <div class="sr" data-hint="Tab to a header and press Enter"></div>
+      </div>
+      <div class="demo good">
+        <div class="tblwrap"><table class="tbl" data-sort data-announce><thead><tr><th scope="col"><button class="thbtn" data-name="Client" data-sr="Client, column header, not sorted, button">Client<i data-i="up"></i></button></th><th scope="col" class="num"><button class="thbtn" data-name="Amount" data-sr="Amount, column header, not sorted, button">Amount<i data-i="up"></i></button></th></tr></thead><tbody><tr><td>Globex</td><td class="num">$985</td></tr><tr><td>Acme Corp</td><td class="num">$12,040</td></tr><tr><td>Initech</td><td class="num">$3,300</td></tr></tbody></table></div>
+        <p class="cap">Same sort. The direction is spoken each time.</p>
+        <div class="sr" data-hint="Tab to a header and press Enter"></div>
+      </div>
+    </div>
+    <p class="try">Tab to "Amount" in each table and press <kbd>Enter</kbd> twice.</p>
+    <p class="figma">Design three header states: not sorted, ascending, descending. Use an arrow, not just a colour. Note which columns are sortable.</p>
+    <details class="rule">WCAG 4.1.2 Name, Role, Value (A), 2.1.1 Keyboard (A) and 1.4.1 Use of Color (A). Developers set <code>aria-sort</code> on the header cell.</details>
+  </article>
+
+  <article class="topic" id="tb-merge" data-who="sr,cognitive" data-check="No merged or split cells; every data cell has exactly one column header.">
+    <h3>Do not merge cells</h3>
+    <p class="lead">A merged header such as "Q3" spanning "Revenue" and "Cost" looks organised. For a screen reader, each cell now has two or three headers at different levels, and many screen readers read only one of them, or the wrong one.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="tblwrap"><table class="tbl"><thead><tr><th rowspan="2">Region</th><th colspan="2" class="ctr">Q3</th></tr><tr><th class="num">Revenue</th><th class="num">Cost</th></tr></thead><tbody><tr><td rowspan="2">Asia</td><td class="num">$40k</td><td class="num">$22k</td></tr><tr><td class="num">$31k</td><td class="num">$18k</td></tr></tbody></table></div>
+        <div class="sr" data-say="Cost, $18k — which region? which quarter?"></div>
+      </div>
+      <div class="demo good">
+        <div class="tblwrap"><table class="tbl"><thead><tr><th scope="col">Region</th><th scope="col" class="num">Q3 revenue</th><th scope="col" class="num">Q3 cost</th></tr></thead><tbody><tr><th scope="row">Asia, India</th><td class="num">$40k</td><td class="num">$22k</td></tr><tr><th scope="row">Asia, Japan</th><td class="num">$31k</td><td class="num">$18k</td></tr></tbody></table></div>
+        <div class="sr" data-say="Asia, Japan, Q3 cost: $18k"></div>
+      </div>
+    </div>
+    <p class="figma">One header row, one label per column. Fold the group name into the label ("Q3 revenue"). If you need groups, split it into two simpler tables.</p>
+    <details class="rule">WCAG 1.3.1 Info and Relationships (A). Complex tables can be coded with <code>headers</code> and <code>id</code>, but support is uneven. Simple is safer.</details>
+  </article>
+
+  <article class="topic" id="tb-colour" data-who="colour,lowvision,sr" data-check="Status is shown with words and icons, not coloured dots or coloured text alone.">
+    <h3>Status by more than a coloured dot</h3>
+    <p class="lead">Red, amber and green dots are the classic table status. To a colour-blind person red and green look alike, and a dot has nothing for a screen reader to read. Each one is announced as an empty cell.</p>
+    <div class="simbar"><button type="button" class="simbtn" data-sim="cb" aria-pressed="false"><i data-i="eye"></i>See it with red-green colour blindness</button></div>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box light" style="padding:0"><table class="tbl"><thead><tr><th>Server</th><th class="ctr">Status</th></tr></thead><tbody><tr><td>api-01</td><td class="ctr"><span class="dot g"></span></td></tr><tr><td>api-02</td><td class="ctr"><span class="dot r"></span></td></tr><tr><td>db-01</td><td class="ctr"><span class="dot a"></span></td></tr></tbody></table></div>
+        <div class="sr" data-say="api-02, Status: blank"></div>
+      </div>
+      <div class="demo good">
+        <div class="box light" style="padding:0"><table class="tbl"><thead><tr><th>Server</th><th>Status</th></tr></thead><tbody><tr><td>api-01</td><td><span class="badge ok" style="color:#17794A;background:#E7F5ED"><i data-i="check"></i>Healthy</span></td></tr><tr><td>api-02</td><td><span class="badge err" style="color:#B93227;background:#FBECEA"><i data-i="x"></i>Down</span></td></tr><tr><td>db-01</td><td><span class="badge wait" style="color:#9A5200;background:#FDF1DF"><i data-i="warn"></i>Slow</span></td></tr></tbody></table></div>
+        <div class="sr" data-say="api-02, Status: Down"></div>
+      </div>
+    </div>
+    <p class="figma">Every status gets a word. Add an icon with a different shape per status. Use the same rule for red negative numbers: add a minus sign or an arrow.</p>
+    <details class="rule">WCAG 1.4.1 Use of Color (A) and 1.1.1 Non-text Content (A).</details>
+  </article>
+
+  <article class="topic" id="tb-states" data-who="sr,cognitive,everyone" data-check="Empty, loading and error states are designed with a message in words inside the table area.">
+    <h3>Empty, loading and error states</h3>
+    <p class="lead">A table with headers and nothing under them could mean three things: no data exists, it is still loading, or loading failed. A sighted user guesses. A screen reader user hears "table, 0 rows" and nothing else.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="tblwrap"><table class="tbl"><thead><tr><th>Invoice</th><th>Client</th><th class="num">Amount</th></tr></thead><tbody><tr><td colspan="3" style="height:86px"></td></tr></tbody></table></div>
+        <p class="cap">Empty? Loading? Broken? It does not say.</p>
+      </div>
+      <div class="demo good">
+        <div class="tblwrap"><table class="tbl"><thead><tr><th>Invoice</th><th>Client</th><th class="num">Amount</th></tr></thead><tbody><tr><td colspan="3" class="ctr" style="padding:18px"><b>No invoices yet</b><br><span class="hint">Create your first invoice to see it here.</span><br><span class="btn sm" style="margin-top:8px">New invoice</span></td></tr></tbody></table></div>
+        <p class="cap">Words say which state this is, and what to do next.</p>
+      </div>
+    </div>
+    <p class="figma">Design four versions of every table: with data, empty, loading ("Loading invoices…") and failed ("Could not load invoices. Try again"). Also design "no results" for filters.</p>
+    <details class="rule">WCAG 4.1.3 Status Messages (AA): loading and result counts should be announced without moving focus.</details>
+  </article>
+</section>
+
+<!-- ================= LEVEL 3 ================= -->
+<section class="tier" data-tier="3">
+  <div class="tier-head"><h2>Senior-level traps</h2><p>Enterprise tables collect features: nested rows, hover actions, selection, endless scroll. Each one is a way to lock somebody out.</p></div>
+
+  <article class="topic" id="tb-nested" data-who="sr,keyboard,cognitive" data-check="No table sits inside a table cell; extra detail uses an expandable row, a side panel or a detail page.">
+    <h3>Never put a table inside a table</h3>
+    <p class="lead">Line items under an invoice, sub-tasks under a task. The tempting design is a small table inside the row. A screen reader then announces the structure of both tables around every value, and the user has to keep two grids in their head at once.</p>
+    <div class="pair">
+      <div class="demo bad" data-stepper>
+        <div class="tblwrap"><table class="tbl"><thead><tr><th scope="col" data-sr="Invoices, table, 2 columns, 2 rows. Invoice, column header">Invoice</th><th scope="col" data-sr="Total, column header">Total</th></tr></thead><tbody>
+          <tr><td data-sr="Row 2. Invoice: Invoice 204. Table, nesting level 2, 2 columns, 3 rows">Invoice #204
+            <table class="tbl" style="margin-top:6px;font-size:12.5px;border:1px solid var(--line)"><thead><tr><th scope="col" data-sr="Item, column header">Item</th><th scope="col" data-sr="Hours, column header">Hours</th></tr></thead><tbody><tr><td data-sr="Row 2. Item: Design">Design</td><td data-sr="Hours: 12">12</td></tr><tr><td data-sr="Row 3. Item: Research">Research</td><td data-sr="Hours: 4">4</td></tr></tbody></table>
+          </td><td class="num" data-sr="Out of table, nesting level 2. Total: $2,400">$2,400</td></tr>
+        </tbody></table></div>
+        <div class="sr" data-hint="Press “Next cell” and listen to the structure"></div>
+      </div>
+      <div class="demo good" data-tag="Do instead">
+        <div class="tblwrap"><table class="tbl"><thead><tr><th scope="col">Invoice</th><th scope="col" class="num">Total</th></tr></thead><tbody>
+          <tr><th scope="row"><button class="thbtn" style="text-transform:none;letter-spacing:0" aria-expanded="false" data-expand="inv204" data-sr="Invoice 204, show line items, button, {state}"><i data-i="chev"></i>Invoice #204</button></th><td class="num">$2,400</td></tr>
+        </tbody></table></div>
+        <div class="cards" id="inv204" hidden><div class="c"><b>Line items for Invoice #204</b><dl><dt>Design</dt><dd>12 hours</dd><dt>Research</dt><dd>4 hours</dd></dl></div></div>
+        <div class="sr" data-hint="Tab to the invoice and press Enter"></div>
+      </div>
+    </div>
+    <p class="try">On the left, press "Next cell" until you reach the total, and count how much you hear that is not data. On the right, open the row with <kbd>Enter</kbd>.</p>
+    <p class="figma">Keep the table flat. Put child data in an expandable area under the row as a simple list, in a side panel, or on a detail page. If child rows need sorting or their own columns, they deserve their own page.</p>
+    <details class="rule">WCAG 1.3.1 Info and Relationships (A) and 1.3.2 Meaningful Sequence (A). The expand control is a button that reports expanded or collapsed.</details>
+  </article>
+
+  <article class="topic" id="tb-hover" data-who="keyboard,touch,motor,lowvision" data-check="Row actions are always visible (or appear on focus as well as hover); nothing is hover-only.">
+    <h3>Actions that only appear on hover</h3>
+    <p class="lead">Hiding Edit and Delete until the mouse is over the row makes a clean table. It also hides them from everyone without a mouse: touch screens have no hover, keyboard focus is not hover, and with a screen magnifier you may never see them appear.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="tblwrap"><table class="tbl"><tbody>
+          <tr><td>Acme Corp</td><td class="num"><span class="acts-hover row" style="justify-content:flex-end"><button class="btn sec sm" data-noop>Edit</button><button class="btn sec sm" data-noop>Delete</button></span></td></tr>
+          <tr><td>Globex</td><td class="num"><span class="acts-hover row" style="justify-content:flex-end"><button class="btn sec sm" data-noop>Edit</button><button class="btn sec sm" data-noop>Delete</button></span></td></tr>
+        </tbody></table></div>
+        <p class="cap">Move the mouse over a row and buttons appear. Tab finds nothing.</p>
+      </div>
+      <div class="demo good">
+        <div class="tblwrap"><table class="tbl"><tbody>
+          <tr><td>Acme Corp</td><td class="num"><button class="ibtn" aria-label="Actions for Acme Corp" data-sr="Actions for Acme Corp, menu button" data-noop><i data-i="more"></i></button></td></tr>
+          <tr><td>Globex</td><td class="num"><button class="ibtn" aria-label="Actions for Globex" data-sr="Actions for Globex, menu button" data-noop><i data-i="more"></i></button></td></tr>
+        </tbody></table></div>
+        <div class="sr" data-hint="Tab into the table"></div>
+      </div>
+    </div>
+    <p class="try">Using only <kbd>Tab</kbd>, try to reach "Delete" for Globex on the left.</p>
+    <p class="figma">Show one always-visible "more actions" button per row, or keep the main action visible. If you reveal on hover, reveal on keyboard focus too, and always on touch.</p>
+    <details class="rule">WCAG 2.1.1 Keyboard (A) and 1.4.13 Content on Hover or Focus (AA).</details>
+  </article>
+
+  <article class="topic" id="tb-rowclick" data-who="keyboard,sr,voice" data-check="Rows are opened through a real link or button in the row (usually the name), not by clicking the row itself.">
+    <h3>The whole row is clickable</h3>
+    <p class="lead">Clicking anywhere on a row to open it feels generous. But a row is not a control. The keyboard cannot focus it, a screen reader does not announce it as clickable, and it fights with the checkbox and buttons inside it.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="tblwrap"><table class="tbl"><tbody><tr class="click"><td>Acme Corp</td><td>Enterprise</td><td class="num">$4,800</td></tr><tr class="click"><td>Globex</td><td>Team</td><td class="num">$900</td></tr></tbody></table></div>
+        <p class="cap">Rows react to the mouse. There is nothing for Tab to land on.</p>
+        <div class="sr" data-say="Acme Corp. Enterprise. $4,800. — no hint that this opens anything"></div>
+      </div>
+      <div class="demo good">
+        <div class="tblwrap"><table class="tbl"><tbody><tr><th scope="row"><a href="#tb-rowclick" data-noop data-sr="Acme Corp, link">Acme Corp</a></th><td>Enterprise</td><td class="num">$4,800</td></tr><tr><th scope="row"><a href="#tb-rowclick" data-noop data-sr="Globex, link">Globex</a></th><td>Team</td><td class="num">$900</td></tr></tbody></table></div>
+        <p class="cap">The name is a link. The row can still highlight on hover as a bonus.</p>
+        <div class="sr" data-hint="Tab into the table"></div>
+      </div>
+    </div>
+    <p class="figma">Pick the cell that names the row and make it the link. Style it so it reads as a link. Row hover and row click can stay as an extra for mouse users.</p>
+    <details class="rule">WCAG 2.1.1 Keyboard (A) and 4.1.2 Name, Role, Value (A).</details>
+  </article>
+
+  <article class="topic" id="tb-select" data-who="sr,keyboard,cognitive" data-check="Each row checkbox is named after its row, and the number selected is shown and announced.">
+    <h3>Selecting rows and bulk actions</h3>
+    <p class="lead">A column of checkboxes has the same problem as a column of Delete buttons: "checkbox, checkbox, checkbox". Then the bulk action bar appears at the top of the page, far from where the user is, and nothing announces it.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="tblwrap"><table class="tbl"><tbody><tr><td style="width:36px"><input type="checkbox" data-sr="checkbox, {state}" style="width:18px;height:18px"></td><td>Acme Corp</td></tr><tr><td><input type="checkbox" data-sr="checkbox, {state}" style="width:18px;height:18px"></td><td>Globex</td></tr></tbody></table></div>
+        <div class="sr" data-hint="Tab to a checkbox and press Space"></div>
+      </div>
+      <div class="demo good">
+        <div class="row between" style="background:var(--surface);border:1.5px solid var(--line-strong);border-radius:10px;padding:6px 10px;font-size:14px"><b>Select rows, then choose an action</b><span class="btn sec sm">Archive</span></div>
+        <div class="tblwrap"><table class="tbl"><tbody><tr><td style="width:36px"><input type="checkbox" aria-label="Select Acme Corp" data-sr="Select Acme Corp, checkbox, {state}" style="width:18px;height:18px"></td><td>Acme Corp</td></tr><tr><td><input type="checkbox" aria-label="Select Globex" data-sr="Select Globex, checkbox, {state}" style="width:18px;height:18px"></td><td>Globex</td></tr></tbody></table></div>
+        <div class="sr" data-hint="Tab to a checkbox and press Space"></div>
+      </div>
+    </div>
+    <p class="figma">Name each checkbox "Select + row name" and the header one "Select all". Show "3 selected" as text, mark it to be announced, and place the bulk bar where focus can reach it next.</p>
+    <details class="rule">WCAG 4.1.2 (A), 1.3.1 (A) and 4.1.3 Status Messages (AA) for the selected count.</details>
+  </article>
+
+  <article class="topic" id="tb-mobile" data-who="lowvision,touch,everyone" data-check="There is a small-screen and 400% zoom design: the identifying column stays visible, or rows become cards.">
+    <h3>Small screens and high zoom</h3>
+    <p class="lead">A user at 400% zoom on a laptop sees your table the way a phone does. Shrinking nine columns to fit makes the text unreadable. Letting it scroll sideways is allowed, but once the name column scrolls away, every number has lost its meaning.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="phone"><table class="tbl" style="font-size:7px;line-height:1.2"><thead><tr><th style="font-size:6px;padding:3px">Client</th><th style="font-size:6px;padding:3px">Plan</th><th style="font-size:6px;padding:3px">Status</th><th style="font-size:6px;padding:3px">Seats</th><th style="font-size:6px;padding:3px">MRR</th></tr></thead><tbody><tr><td style="padding:3px">Acme Corp</td><td style="padding:3px">Enterprise</td><td style="padding:3px">Active</td><td style="padding:3px">120</td><td style="padding:3px">$4,800</td></tr><tr><td style="padding:3px">Globex</td><td style="padding:3px">Team</td><td style="padding:3px">Paused</td><td style="padding:3px">30</td><td style="padding:3px">$900</td></tr></tbody></table></div>
+        <p class="cap">Everything fits. Nothing can be read or tapped.</p>
+      </div>
+      <div class="demo good">
+        <div class="phone"><div class="cards" style="padding:8px;font-size:11px"><div class="c" style="font-size:11px;padding:8px"><b>Acme Corp</b><dl><dt>Plan</dt><dd>Enterprise</dd><dt>Status</dt><dd>Active</dd><dt>MRR</dt><dd>$4,800</dd></dl></div><div class="c" style="font-size:11px;padding:8px"><b>Globex</b><dl><dt>Plan</dt><dd>Team</dd><dt>Status</dt><dd>Paused</dd></dl></div></div></div>
+        <p class="cap">Each row becomes a card with its labels. Or keep the table and pin the first column.</p>
+      </div>
+    </div>
+    <p class="figma">Design the table at 320 px wide. Choose one: cards, a pinned first column with sideways scroll, or fewer columns with the rest behind "Details". Keep text at its normal size.</p>
+    <details class="rule">WCAG 1.4.10 Reflow (AA) allows data tables to scroll in two directions, but 1.4.4 Resize Text (AA) and 2.5.8 Target Size (AA) still apply.</details>
+  </article>
+
+  <article class="topic" id="tb-scroll" data-who="keyboard,sr,cognitive" data-check="Long tables use pagination or a “Load more” button and show the position (“1–25 of 312”); no endless scroll.">
+    <h3>Infinite scroll and where you are</h3>
+    <p class="lead">Infinite scroll keeps adding rows as you reach the bottom. A keyboard user can therefore never Tab past the table to the footer or to the controls below it. Nobody knows how many rows there are, and after opening a row you come back to the top.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col"><span class="skel"></span><span class="skel" style="width:85%"></span><span class="skel" style="width:92%"></span><span class="hint ctr" style="text-align:center"><span class="spin"></span> Loading more… and more… and more…</span><span class="hint" style="opacity:.6;border-top:1px dashed var(--line-strong);padding-top:8px">Footer: Help · Contact · Export — never reached</span></div>
+        <p class="cap">No total, no end, and the footer keeps moving away.</p>
+      </div>
+      <div class="demo good">
+        <div class="box col"><span class="skel"></span><span class="skel" style="width:85%"></span><span class="skel" style="width:92%"></span><div class="row between"><span class="hint"><b>1–25</b> of 312 invoices</span><span class="row"><span class="btn sec sm">Previous</span><span class="btn sec sm">Next</span></span></div><span class="hint" style="border-top:1px dashed var(--line-strong);padding-top:8px">Footer: Help · Contact · Export</span></div>
+        <p class="cap">You know where you are, how much is left, and you can leave.</p>
+      </div>
+    </div>
+    <p class="figma">Use pagination or a "Load more" button. Always show the range and the total. After "Load more", say where focus goes: the first new row.</p>
+    <details class="rule">WCAG 2.1.1 Keyboard (A), 2.4.3 Focus Order (A) and 4.1.3 Status Messages (AA) for "25 more rows loaded".</details>
+  </article>
+</section>
+
+<section class="section" aria-labelledby="quiz-h">
+  <h2 id="quiz-h">Spot the problem</h2>
+  <p class="sub">Five quick questions. You get the reason straight away.</p>
+  <div class="quiz" id="qtb" data-quiz><script type="application/json">[
+    {"q":"An invoice row has a small table of line items inside one of its cells. What is the best fix?","a":["Make the inner table smaller","Keep the table flat and show line items in an expandable area, panel or detail page","Add borders to the inner table"],"c":1,"why":"One grid at a time. Child data goes outside the cell.","hint":"How many grids must the listener hold in their head?"},
+    {"q":"Status is shown as a red, amber or green dot. Who cannot use it?","a":["Only people on phones","People with colour blindness and screen reader users","Nobody, dots are standard"],"c":1,"why":"Add a word, and an icon with its own shape.","hint":"What does a dot say out loud?"},
+    {"q":"Edit and Delete appear only when the mouse hovers over a row. Who is locked out?","a":["Keyboard users and touch users","Mouse users","Nobody"],"c":0,"why":"There is no hover on a touch screen, and focus is not hover.","hint":"Who has no hover?"},
+    {"q":"A screen reader lands on a cell and says only “Active”. What is missing?","a":["A bigger font","Real column and row headers","A sort arrow"],"c":1,"why":"With headers it says “Acme Corp, Status, Active”.","hint":"Active what? For whom?"},
+    {"q":"A 2,000-row table uses infinite scroll. What is the main accessibility problem?","a":["It loads slowly","Keyboard users can never get past it, and nobody knows their position","The rows are too tall"],"c":1,"why":"Use pagination or “Load more”, and show “1–25 of 2,000”.","hint":"Try to reach the footer with Tab."}
+  ]</script></div>
+</section>
+
+<section class="section panel check" id="checklist" aria-labelledby="check-h">
+  <div class="row between" style="margin-bottom:8px"><h2 id="check-h">Table checklist</h2><button type="button" class="btn sec sm no-print" data-print><i data-i="print"></i>Print checklist</button></div>
+  <p class="cap" style="margin-bottom:10px">Use this in design review. Ticking an item also marks that topic as learned.</p>
+  <div id="checklist-body"></div>
+</section>
+
+<nav class="next" aria-label="Next page">
+  <a class="cta alt" href="modals.html"><i data-i="back"></i>Modals</a>
+  <a class="cta" href="index.html">Back to the start<i data-i="arrow"></i></a>
+</nav>
+
+</div></main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

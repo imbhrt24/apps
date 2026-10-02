@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buttons — Accessibility, by Example</title>
+<meta name="description" content="Everything a button needs to be accessible, from contrast and target size to names, focus, states and the traps seniors learn the hard way.">
+<script>try{var t=localStorage.getItem('a11y-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page="buttons">
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+<main id="main" tabindex="-1"><div class="wrap">
+
+<header class="hero">
+  <p class="eyebrow">Component 1 of 4</p>
+  <h1>Buttons</h1>
+  <p class="lede">A button is a promise: press this and something happens now. You already check its contrast and its size. There are ten more things to check, and every one is a design decision, not a developer's.</p>
+</header>
+
+<section class="panel" aria-labelledby="anat-h">
+  <h2 id="anat-h" style="margin-bottom:6px">Everything a button needs</h2>
+  <p class="cap" style="margin-bottom:18px">Each number is one requirement. Pick any to jump to it, or read top to bottom.</p>
+  <div class="anatomy">
+    <div class="stage" role="group" aria-label="Annotated buttons">
+      <div class="spot"><button class="btn" data-noop>Save changes</button><div class="pins"><a class="pin" href="#b-contrast"></a><a class="pin" href="#b-label"></a></div></div>
+      <div class="spot"><button class="ibtn" aria-label="Delete" data-noop><i data-i="trash"></i></button><div class="pins"><a class="pin" href="#b-size"></a><a class="pin" href="#b-name"></a></div></div>
+      <div class="spot"><span class="btn sec ring" aria-hidden="true">Cancel</span><div class="pins"><a class="pin" href="#b-focus"></a><a class="pin" href="#b-keyboard"></a></div></div>
+      <div class="spot"><span class="btn ok" aria-hidden="true"><i data-i="check"></i>Saved</span><div class="pins"><a class="pin" href="#b-colour"></a><a class="pin" href="#b-states"></a></div></div>
+      <div class="spot"><span class="btn" aria-disabled="true" aria-hidden="true">Continue</span><div class="pins"><a class="pin" href="#b-disabled"></a></div></div>
+      <div class="spot"><span class="btn sec" aria-hidden="true">View pricing<i data-i="arrow"></i></span><div class="pins"><a class="pin" href="#b-link"></a></div></div>
+      <div class="spot"><span class="row" aria-hidden="true"><span class="btn sec sm">Delete</span><span class="btn sec sm">Delete</span></span><div class="pins"><a class="pin" href="#b-repeat"></a><a class="pin" href="#b-card"></a></div></div>
+    </div>
+    <div class="alist" id="anatomy-list"></div>
+  </div>
+</section>
+
+<!-- ================= LEVEL 1 ================= -->
+<section class="tier" data-tier="1">
+  <div class="tier-head"><h2>You already know this</h2><p>Contrast and size. You check both already, but each has a part that most juniors skip.</p></div>
+
+  <article class="topic" id="b-contrast" data-who="lowvision,everyone" data-check="Label text has 4.5 : 1 contrast against the button; icons and outline borders have 3 : 1; checked in every state and theme.">
+    <h3>Contrast, for the label and the shape</h3>
+    <p class="lead">You know text needs contrast. The parts people miss: the required number changes with text size, and the <em>icon</em> and the <em>outline of the button itself</em> need contrast too, or people can't tell there is a button there.</p>
+    <div class="demo solo" data-contrast>
+      <div class="row between">
+        <label for="c-range" style="font-weight:650">Drag to lighten or darken the button</label>
+        <span class="lab-out" aria-hidden="true"></span>
+      </div>
+      <input id="c-range" type="range" min="18" max="86" value="62">
+      <div class="box center light"><span class="btn c-sample">Save changes</span></div>
+      <p class="c-verdict fb" role="status"></p>
+    </div>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center light"><span class="btn" style="background:#A9BCFF;color:#fff">Save changes</span><span class="btn" style="background:#fff;color:#A0A0A0;border-color:#E9E9E9">Cancel</span></div>
+        <p class="cap">White on pale blue is about 1.9 : 1. The outline button's border nearly disappears, so it reads as loose text.</p>
+      </div>
+      <div class="demo good">
+        <div class="box center light"><span class="btn" style="background:#2B4EDB;color:#fff">Save changes</span><span class="btn" style="background:#fff;color:#17181C;border-color:#77736B">Cancel</span></div>
+        <p class="cap">Label 6.5 : 1. The border is strong enough to say "this is a control".</p>
+      </div>
+    </div>
+    <p class="figma">Check three pairs for every button style: label against fill (4.5 : 1), icon against fill (3 : 1), and for outline or ghost buttons the border against the page (3 : 1). Repeat for hover, pressed and dark mode.</p>
+    <details class="rule">WCAG 1.4.3 Contrast (Minimum), AA: 4.5 : 1 for text, 3 : 1 for large text (24px and up, or about 19px bold). WCAG 1.4.11 Non-text Contrast, AA: 3 : 1 for icons and for whatever visually identifies the control and its state. Disabled buttons are exempt, but should still be readable.</details>
+  </article>
+
+  <article class="topic" id="b-size" data-who="motor,touch,everyone" data-check="Every button is at least 24 × 24 px, 44 px or more on touch, with space between neighbours.">
+    <h3>Target size, and the gap between targets</h3>
+    <p class="lead">A button someone cannot hit is a button that does not work: a shaking hand, a thumb on a bus, a trackpad in a hurry. Size is half of it. The other half is the gap, because a miss should land on nothing, not on Delete.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center col" style="align-items:center"><div class="row" style="gap:1px"><span class="ibtn tiny"><i data-i="edit"></i></span><span class="ibtn tiny"><i data-i="copy"></i></span><span class="ibtn tiny"><i data-i="trash"></i></span></div><span class="ruler">20 × 20 px, touching</span></div>
+        <p class="cap">Edit, Copy and Delete share one fingertip. A slip deletes the row.</p>
+      </div>
+      <div class="demo good">
+        <div class="box center col" style="align-items:center"><div class="row" style="gap:10px"><span class="ibtn"><i data-i="edit"></i></span><span class="ibtn"><i data-i="copy"></i></span><span class="ibtn"><i data-i="trash"></i></span></div><span class="ruler">40 × 40 px, 10 px apart</span></div>
+        <p class="cap">Same icons. The tap area is larger than the icon, and Delete sits apart.</p>
+      </div>
+    </div>
+    <p class="figma">The tap area can be bigger than what you draw. Put a 44 px frame around a 20 px icon and note "hit area 44 × 44" in the spec. Keep destructive actions away from frequent ones.</p>
+    <details class="rule">WCAG 2.5.8 Target Size (Minimum), AA: 24 × 24 CSS px, or enough spacing that a 24 px circle on each target does not overlap another. WCAG 2.5.5 (AAA) asks for 44 × 44. Apple recommends 44 pt, Material 48 dp.</details>
+  </article>
+</section>
+
+<!-- ================= LEVEL 2 ================= -->
+<section class="tier" data-tier="2">
+  <div class="tier-head"><h2>What you're probably missing</h2><p>These six never show up in a static mockup. You only notice them with a keyboard, a screen reader or a different pair of eyes.</p></div>
+
+  <article class="topic" id="b-name" data-who="sr,voice" data-check="Every icon-only button has a written name in the spec (for example: bin icon = “Delete invoice”).">
+    <h3>Every icon needs a name</h3>
+    <p class="lead">A screen reader cannot see a bin icon. It reads the button's <strong>name</strong>, and an icon alone has none. To that user, three icon buttons in a row are "button, button, button".</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center"><button class="ibtn" data-sr="button" data-noop><i data-i="x"></i></button><button class="ibtn" data-sr="button" data-noop><i data-i="settings"></i></button><button class="ibtn" data-sr="button" data-noop><i data-i="link"></i></button></div>
+        <p class="cap">Three icons, no names.</p>
+        <div class="sr" data-hint="Tab to a button in this box"></div>
+      </div>
+      <div class="demo good">
+        <div class="box center"><button class="ibtn" aria-label="Close" data-sr="Close, button" data-noop><i data-i="x"></i></button><button class="ibtn" aria-label="Settings" data-sr="Settings, button" data-noop><i data-i="settings"></i></button><button class="ibtn" aria-label="Copy link" data-sr="Copy link, button" data-noop><i data-i="link"></i></button></div>
+        <p class="cap">Same icons, each with a name the eye never sees.</p>
+        <div class="sr" data-hint="Tab to a button in this box"></div>
+      </div>
+    </div>
+    <p class="try">Press <kbd>Tab</kbd> through both rows and read the dark strip. Both rows look identical to you. Only one tells a blind user what the button does.</p>
+    <p class="figma">You choose the name, not the developer. Add a line per icon button: "Bin icon, name: Delete". If it has a tooltip, the name and the tooltip should say the same thing.</p>
+    <details class="rule">WCAG 4.1.2 Name, Role, Value (A). Developers add the name with <code>aria-label</code> or visually hidden text inside the button.</details>
+  </article>
+
+  <article class="topic" id="b-label" data-who="sr,voice,cognitive" data-check="Labels say what happens (“Send invoice”), not “OK”, “Submit” or “Click here”.">
+    <h3>A label that makes sense on its own</h3>
+    <p class="lead">Screen reader users often pull up a list of every button on the page. In that list, "OK", "Submit" and "Click here" mean nothing. Voice control users say the label out loud, so "Click Send invoice" must match the words on screen.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center"><button class="btn sec" data-sr="Click here, button" data-noop>Click here</button><button class="btn sec" data-sr="Submit, button" data-noop>Submit</button><button class="btn sec" data-sr="OK, button" data-noop>OK</button></div>
+        <div class="sr" data-hint="Tab through, and imagine you cannot see the page"></div>
+      </div>
+      <div class="demo good">
+        <div class="box center"><button class="btn sec" data-sr="Download report, button" data-noop>Download report</button><button class="btn sec" data-sr="Send invoice, button" data-noop>Send invoice</button><button class="btn sec" data-sr="Save changes, button" data-noop>Save changes</button></div>
+        <div class="sr" data-hint="Tab through, and imagine you cannot see the page"></div>
+      </div>
+    </div>
+    <p class="figma">Write labels as verb plus object. Read your buttons as a bare list with the layout hidden. If you cannot tell what each does, rewrite it.</p>
+    <details class="rule">WCAG 2.4.6 Headings and Labels (AA) and 2.5.3 Label in Name (A): the coded name must contain the visible label, so voice commands work.</details>
+  </article>
+
+  <article class="topic" id="b-focus" data-who="keyboard,lowvision" data-check="A visible focus state is designed for every button style, at least 2 px thick and clear on every background.">
+    <h3>A focus state you can actually see</h3>
+    <p class="lead">Keyboard users move with <kbd>Tab</kbd>. The focus ring is their cursor. Remove it "because it looks cleaner" and you have hidden the mouse pointer for everyone who does not use a mouse.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center"><button class="btn sec nofocus" data-noop>One</button><button class="btn sec nofocus" data-noop>Two</button><button class="btn sec nofocus" data-noop>Three</button></div>
+        <p class="cap">Focus ring removed. Nothing replaces it.</p>
+      </div>
+      <div class="demo good">
+        <div class="box center"><button class="btn sec" data-noop>One</button><button class="btn sec" data-noop>Two</button><button class="btn sec" data-noop>Three</button></div>
+        <p class="cap">A 3 px ring with a small gap, visible on any colour.</p>
+      </div>
+    </div>
+    <p class="try">Press <kbd>Tab</kbd> through the left row and try to say which button you are on. Then do the same on the right.</p>
+    <p class="figma">Add "focus" as a variant on every interactive component, next to hover and pressed. Test the ring on white, on colour and on images. Also check that sticky headers and footers never cover the focused button.</p>
+    <details class="rule">WCAG 2.4.7 Focus Visible (AA). WCAG 2.4.11 Focus Not Obscured (AA): the focused control must not be fully hidden by sticky content. WCAG 2.4.13 Focus Appearance (AAA) is the best target to design to: at least 2 px thick, 3 : 1 against the unfocused state.</details>
+  </article>
+
+  <article class="topic" id="b-keyboard" data-who="keyboard,sr,voice" data-check="Every button can be reached with Tab and pressed with Enter and Space; nothing is a clickable box.">
+    <h3>It works without a mouse</h3>
+    <p class="lead">Looking like a button and being a button are different things. A real button is reached with <kbd>Tab</kbd> and pressed with <kbd>Enter</kbd> or <kbd>Space</kbd>. A styled box with a click attached works for a mouse and for nobody else.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center"><span class="ibtn" data-fake-toggle><i data-i="heart"></i></span><span class="hint">A "clickable" box</span></div>
+        <p class="cap">Click it with a mouse and it works. Tab skips it completely.</p>
+        <div class="sr" data-hint="Try to reach the heart with Tab"></div>
+      </div>
+      <div class="demo good">
+        <div class="box center"><button class="ibtn" aria-label="Like" aria-pressed="false" data-toggle data-sr="Like, toggle button, {state}"><i data-i="heart"></i></button><span class="hint">A real button</span></div>
+        <p class="cap">Reachable, pressable, and it reports its state.</p>
+        <div class="sr" data-hint="Tab to the heart, then press Space"></div>
+      </div>
+    </div>
+    <p class="try">Tab toward both hearts. Focus never lands on the left one. On the right one, press <kbd>Space</kbd> or <kbd>Enter</kbd>.</p>
+    <p class="figma">In handoff, call it "a button", never "a clickable container". If you invent a custom control, write down which keys operate it.</p>
+    <details class="rule">WCAG 2.1.1 Keyboard (A). Built with a native <code>&lt;button&gt;</code>, keyboard support comes for free.</details>
+  </article>
+
+  <article class="topic" id="b-colour" data-who="colour,lowvision" data-check="No state is shown by colour alone; an icon or words carry the meaning too.">
+    <h3>State shown by more than colour</h3>
+    <p class="lead">About 1 in 12 men and 1 in 200 women have some form of colour blindness, most often red and green. If success and failure differ only by hue, those users see two identical buttons.</p>
+    <div class="simbar"><button type="button" class="simbtn" data-sim="cb" aria-pressed="false"><i data-i="eye"></i>See it with red-green colour blindness</button></div>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center light"><span class="btn" style="background:#2E9E5B;color:#fff">Upload</span><span class="btn" style="background:#D64545;color:#fff">Upload</span></div>
+        <p class="cap">Green means it worked, red means it failed. Same word on both.</p>
+      </div>
+      <div class="demo good">
+        <div class="box center light"><span class="btn" style="background:#1D7A45;color:#fff"><i data-i="check"></i>Uploaded</span><span class="btn" style="background:#B93227;color:#fff"><i data-i="warn"></i>Failed. Retry</span></div>
+        <p class="cap">Icon and words carry the meaning. Colour only reinforces it.</p>
+      </div>
+    </div>
+    <p class="try">Switch on the colour blindness filter above and look at the left pair again.</p>
+    <p class="figma">Turn your frame to greyscale. If two states become identical, add an icon, a word, or a shape change.</p>
+    <details class="rule">WCAG 1.4.1 Use of Color (A).</details>
+  </article>
+
+  <article class="topic" id="b-states" data-who="sr,cognitive,everyone" data-check="Hover, focus, pressed, loading, success and disabled are all designed; loading shows words, not just a spinner.">
+    <h3>Every state, especially loading</h3>
+    <p class="lead">A button has more states than default and hover: focus, pressed, loading, success, error, disabled. Loading is the one that fails silently. A spinner alone tells a screen reader nothing, and tells everyone else "maybe press it again".</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center"><button class="btn" data-loading="bad" data-sr="Save, button" style="min-width:96px">Save</button></div>
+        <p class="cap">The label is replaced by a spinner. Nothing is announced.</p>
+        <div class="sr" data-hint="Press the Save button"></div>
+      </div>
+      <div class="demo good">
+        <div class="box center"><button class="btn" data-loading="good" data-sr="Save, button" style="min-width:96px">Save</button></div>
+        <p class="cap">Words change to "Saving…", then "Saved", and both are announced.</p>
+        <div class="sr" data-hint="Press the Save button"></div>
+      </div>
+    </div>
+    <p class="figma">Build the full state set as variants. For loading, write the exact words ("Saving…", "Saved") and note "announce this to screen readers".</p>
+    <details class="rule">WCAG 4.1.3 Status Messages (AA): changes that do not move focus must still be announced. Developers use a live region, and block repeat presses while the request runs.</details>
+  </article>
+</section>
+
+<!-- ================= LEVEL 3 ================= -->
+<section class="tier" data-tier="3">
+  <div class="tier-head"><h2>Senior-level traps</h2><p>Each button below passes every check above on its own. The problem only appears once it sits in a real screen.</p></div>
+
+  <article class="topic" id="b-disabled" data-who="keyboard,sr,cognitive" data-check="Buttons are not disabled without a visible reason; submit stays enabled and explains what is missing.">
+    <h3>The disabled button that never says why</h3>
+    <p class="lead">Greying out "Continue" until the form is perfect feels tidy. In use, people stare at a dead button with no idea what is wrong. Keyboard focus skips it entirely, and it usually fails contrast as well.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col"><div class="field"><label for="d1">Work email</label><input id="d1" type="text" data-sr="Work email, edit text" autocomplete="off"></div><button class="btn" disabled style="align-self:flex-start">Continue</button></div>
+        <p class="cap">Tab goes from the field straight out of the form. The button is never reached.</p>
+        <div class="sr" data-hint="Tab into the field, then Tab again"></div>
+      </div>
+      <div class="demo good">
+        <div class="box col"><div class="field"><label for="d2">Work email</label><input id="d2" type="text" data-sr="Work email, edit text" autocomplete="off"><span class="err" id="d2e" hidden><i data-i="warn"></i>Enter your work email to continue</span></div><button class="btn" style="align-self:flex-start" data-show="d2e" data-sr="Continue, button" data-say="Error: enter your work email to continue">Continue</button></div>
+        <p class="cap">The button stays live. Pressing it tells you exactly what is missing.</p>
+        <div class="sr" data-hint="Tab to Continue and press it"></div>
+      </div>
+    </div>
+    <p class="figma">Default to an enabled button plus a clear error. If a button truly must be disabled, put the reason in visible text next to it ("Add at least one item to continue").</p>
+    <details class="rule">Not a single WCAG criterion, but it touches 3.3.1 Error Identification (A) and 3.3.2 Labels or Instructions (A). If the control must stay focusable while unavailable, developers use <code>aria-disabled="true"</code> instead of <code>disabled</code>.</details>
+  </article>
+
+  <article class="topic" id="b-link" data-who="keyboard,sr,everyone" data-check="Anything that goes to another page is a link (even if it looks like a button); anything that acts on this page is a button.">
+    <h3>Button or link? You decide, not the developer</h3>
+    <p class="lead">A button <em>does something here</em>. A link <em>takes you somewhere</em>. They can look identical, but they behave differently: links open in a new tab, can be copied and bookmarked, and are announced as "link". Mark it wrong and all of that breaks.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center"><button class="btn" data-sr="View pricing, button" data-noop>View pricing<i data-i="arrow"></i></button></div>
+        <p class="cap">Goes to another page, but is built as a button. No "open in new tab", and it is announced as an action.</p>
+        <div class="sr" data-hint="Tab to it"></div>
+      </div>
+      <div class="demo good">
+        <div class="box center"><a class="btn" href="#b-link" data-sr="View pricing, link" data-noop>View pricing<i data-i="arrow"></i></a></div>
+        <p class="cap">Looks the same. It is a link, so right-click, new tab and "link" all work.</p>
+        <div class="sr" data-hint="Tab to it"></div>
+      </div>
+    </div>
+    <p class="figma">Ask one question: does the address in the browser change? If yes it is a link, however it is styled. Tag each one in your spec.</p>
+    <details class="rule">WCAG 4.1.2 Name, Role, Value (A). Navigation uses <code>&lt;a href&gt;</code>, actions use <code>&lt;button&gt;</code>.</details>
+  </article>
+
+  <article class="topic" id="b-repeat" data-who="sr,voice" data-check="Repeated buttons in lists and tables have unique names (“Delete Acme invoice”).">
+    <h3>Delete, Delete, Delete</h3>
+    <p class="lead">In a list, every row has the same button. You can see which row each one belongs to. A screen reader user hearing "Delete, button" has no idea what they are about to destroy.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col"><div class="row between"><span>Acme invoice</span><button class="btn sec sm" data-sr="Delete, button" data-noop>Delete</button></div><div class="row between"><span>Globex invoice</span><button class="btn sec sm" data-sr="Delete, button" data-noop>Delete</button></div></div>
+        <div class="sr" data-hint="Tab to each Delete"></div>
+      </div>
+      <div class="demo good">
+        <div class="box col"><div class="row between"><span>Acme invoice</span><button class="btn sec sm" aria-label="Delete Acme invoice" data-sr="Delete Acme invoice, button" data-noop>Delete</button></div><div class="row between"><span>Globex invoice</span><button class="btn sec sm" aria-label="Delete Globex invoice" data-sr="Delete Globex invoice, button" data-noop>Delete</button></div></div>
+        <div class="sr" data-hint="Tab to each Delete"></div>
+      </div>
+    </div>
+    <p class="figma">For any repeated action, note the naming pattern once: "Delete + row name". The visible label can stay short.</p>
+    <details class="rule">WCAG 2.4.6 Headings and Labels (AA) and 4.1.2 (A). Developers add the row name to the accessible name, keeping the visible word at the start so voice control still works.</details>
+  </article>
+
+  <article class="topic" id="b-card" data-who="keyboard,sr,touch" data-check="No button sits inside another clickable area; cards have one main link plus separate buttons.">
+    <h3>A clickable card with buttons inside it</h3>
+    <p class="lead">Making the whole card clickable <em>and</em> putting a button inside it creates a target within a target. A tap near the heart may open the card. A screen reader reads the entire card as one giant link name.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box col dim" style="--o:-4px;outline-color:var(--bad);cursor:pointer"><b>Project Falcon</b><span class="hint">12 tasks, due Friday</span><div class="row between"><span class="hint">Whole card is one click area</span><span class="ibtn"><i data-i="heart"></i></span></div></div>
+        <div class="sr" data-say="Link: Project Falcon 12 tasks due Friday whole card is one click area button"></div>
+      </div>
+      <div class="demo good">
+        <div class="box col"><a href="#b-card" data-noop style="font-weight:700" class="dim">Project Falcon</a><span class="hint">12 tasks, due Friday</span><div class="row between"><span class="hint">Title is the link</span><span class="ibtn dim" style="--o:3px"><i data-i="heart"></i></span></div></div>
+        <div class="sr" data-say="Link: Project Falcon.  Then: Like Project Falcon, button"></div>
+      </div>
+    </div>
+    <p class="figma">Give a card one main link, usually the title. Keep other actions as separate buttons with their own space. Draw the two hit areas so nobody guesses.</p>
+    <details class="rule">Interactive elements must not be nested inside each other (HTML rule, and WCAG 4.1.2). Developers can stretch the title link over the card visually while keeping the buttons separate.</details>
+  </article>
+</section>
+
+<section class="section" aria-labelledby="quiz-h">
+  <h2 id="quiz-h">Spot the problem</h2>
+  <p class="sub">Five quick questions. You get the reason straight away.</p>
+  <div class="quiz" id="qb" data-quiz><script type="application/json">[
+    {"q":"A toolbar has a bin icon button with no text. What is missing?","a":["A larger icon","A name, such as “Delete”, for screen readers and voice control","A hover colour"],"c":1,"why":"Without a name it is announced as just “button”.","hint":"Think about someone who cannot see the icon."},
+    {"q":"“Continue” stays greyed out until the form is valid. What is the biggest problem?","a":["Grey looks dull","Nobody is told what is wrong, and keyboard focus skips the button","It should be red instead"],"c":1,"why":"Keep it enabled and explain what is missing when pressed.","hint":"What does the person learn from a dead button?"},
+    {"q":"“View pricing” looks like a filled button and opens the pricing page. What is it?","a":["A button","A link, styled like a button","Either, it does not matter"],"c":1,"why":"If the address changes it is a link, whatever it looks like.","hint":"Does the browser address change?"},
+    {"q":"What is the minimum target size in WCAG 2.2 at level AA?","a":["16 × 16 px","24 × 24 px, with 44 px or more recommended for touch","60 × 60 px"],"c":1,"why":"24 is the floor. Design for 44 to 48 on touch screens.","hint":"The floor is lower than the number most designers quote."},
+    {"q":"While saving, the label is replaced by a spinner. What does a screen reader user hear?","a":["“Saving”","Nothing, unless the status is also written and announced","A beep"],"c":1,"why":"A spinner is a picture. Status needs words.","hint":"A spinner has no text."}
+  ]</script></div>
+</section>
+
+<section class="section panel check" id="checklist" aria-labelledby="check-h">
+  <div class="row between" style="margin-bottom:8px"><h2 id="check-h">Button checklist</h2><button type="button" class="btn sec sm no-print" data-print><i data-i="print"></i>Print checklist</button></div>
+  <p class="cap" style="margin-bottom:10px">Use this in design review. Ticking an item also marks that topic as learned.</p>
+  <div id="checklist-body"></div>
+</section>
+
+<nav class="next" aria-label="Next page">
+  <a class="cta alt" href="foundations.html"><i data-i="back"></i>Foundations</a>
+  <a class="cta" href="toggles.html">Next: Toggles<i data-i="arrow"></i></a>
+</nav>
+
+</div></main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

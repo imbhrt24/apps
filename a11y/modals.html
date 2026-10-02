@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Modals — Accessibility, by Example</title>
+<meta name="description" content="Everything a modal dialog needs to be accessible: a way out, focus that moves in and returns, an announced title, and why nested modals, forms and tables in modals fail.">
+<script>try{var t=localStorage.getItem('a11y-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page="modals">
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+<main id="main" tabindex="-1"><div class="wrap">
+
+<header class="hero">
+  <p class="eyebrow">Component 3 of 4</p>
+  <h1>Modals</h1>
+  <p class="lede">A modal stops the whole page to demand one decision. That makes it the riskiest component you design. When a button fails, one action is lost. When a modal fails, a keyboard user is locked out of the page, or trapped behind it.</p>
+</header>
+
+<section class="panel" aria-labelledby="anat-h">
+  <h2 id="anat-h" style="margin-bottom:6px">Everything a modal needs</h2>
+  <p class="cap" style="margin-bottom:18px">Each number is one requirement. Pick any to jump to it, or read top to bottom.</p>
+  <div class="anatomy">
+    <div class="stage col" role="group" aria-label="Annotated modal dialog">
+      <div class="mini" style="min-height:250px">
+        <div class="pg" aria-hidden="true"><i class="b"></i><i></i><i style="width:80%"></i><i style="width:60%"></i><i></i><i style="width:70%"></i></div>
+        <div class="dim-bg" aria-hidden="true"></div>
+        <div class="dlg">
+          <h4><span>Delete file? <a class="pin" href="#m-title" style="display:inline-grid"></a></span><span class="row" style="gap:4px"><a class="pin" href="#m-exit"></a><span class="ibtn" style="width:28px;height:28px" aria-hidden="true"><i data-i="x"></i></span></span></h4>
+          <p>"Q3 report" will be removed for everyone.</p>
+          <div class="pins" style="justify-content:flex-start"><a class="pin" href="#m-focus"></a><a class="pin" href="#m-fit"></a></div>
+          <div class="acts"><a class="pin" href="#m-actions"></a><span class="btn sec sm ring" aria-hidden="true">Cancel</span><span class="btn danger sm" aria-hidden="true">Delete file</span></div>
+        </div>
+      </div>
+      <div class="row"><span class="hint">Behind and around it:</span><div class="pins"><a class="pin" href="#m-inert"></a><a class="pin" href="#m-dismiss"></a></div></div>
+      <div class="row"><span class="hint">In real products:</span><div class="pins"><a class="pin" href="#m-nested"></a><a class="pin" href="#m-form"></a><a class="pin" href="#m-table"></a><a class="pin" href="#m-auto"></a><a class="pin" href="#m-alt"></a></div></div>
+    </div>
+    <div class="alist" id="anatomy-list"></div>
+  </div>
+</section>
+
+<!-- ================= LEVEL 1 ================= -->
+<section class="tier" data-tier="1">
+  <div class="tier-head"><h2>You already know this</h2><p>A modal needs a way out and it needs to fit the screen. Both sound obvious and both are regularly shipped broken.</p></div>
+
+  <article class="topic" id="m-exit" data-who="keyboard,motor,everyone" data-check="There is a visible, labelled close button (44 px on touch) as well as Esc; the backdrop is never the only way out.">
+    <h3>An obvious way out</h3>
+    <p class="lead">If the only exit is clicking the dimmed area outside, a keyboard user has no exit at all, and many mouse users never discover it. Every modal needs a visible close control that can be reached and pressed.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="mini"><div class="pg" aria-hidden="true"><i class="b"></i><i></i><i style="width:70%"></i></div><div class="dim-bg"></div><div class="dlg"><h4>What's new</h4><p>We redesigned your dashboard.</p><p class="hint">Click outside to close</p></div></div>
+        <p class="cap">No close button, no Cancel. The exit is invisible.</p>
+      </div>
+      <div class="demo good">
+        <div class="mini"><div class="pg" aria-hidden="true"><i class="b"></i><i></i><i style="width:70%"></i></div><div class="dim-bg"></div><div class="dlg"><h4>What's new<span class="ibtn dim" style="width:32px;height:32px;--o:3px"><i data-i="x"></i></span></h4><p>We redesigned your dashboard.</p><div class="acts"><span class="btn sm">Got it</span></div></div></div>
+        <p class="cap">A close button, a clear action, and <kbd>Esc</kbd> works too.</p>
+      </div>
+    </div>
+    <p class="figma">Every modal gets a close button in the same corner, at least 24 px and ideally 44 px on touch, with the name "Close". Add a text action such as "Cancel" or "Got it" as well.</p>
+    <details class="rule">WCAG 2.1.1 Keyboard (A) and 2.1.2 No Keyboard Trap (A): if focus can enter, the person must be able to leave with the keyboard. Close button target: 2.5.8 (AA).</details>
+  </article>
+
+  <article class="topic" id="m-fit" data-who="lowvision,touch,everyone" data-check="The modal works on a small phone and at 200% zoom: content scrolls, title and actions stay reachable, nothing is cut off.">
+    <h3>It fits small screens and zoomed text</h3>
+    <p class="lead">A 480 px modal designed on a large monitor meets a 375 px phone, or a user at 200% zoom, and the buttons fall off the bottom of the screen. People with low vision zoom all the time. To them, your desktop layout is a phone layout.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="phone"><div class="pg" style="position:absolute;inset:0;background:var(--scrim)"></div><div class="dlg" style="position:absolute;left:10px;top:34px;width:190px;font-size:11px"><h4 style="font-size:12px">Edit shipping address</h4><p>Street, city, postcode, country, phone…</p><p>More fields below</p><p>…</p><p>…</p><div class="acts"><span class="btn sm">Save</span></div></div></div>
+        <p class="cap">Desktop modal on a phone. The right edge and the Save button are off screen.</p>
+      </div>
+      <div class="demo good">
+        <div class="phone"><div style="display:grid;grid-template-rows:auto 1fr auto;height:100%;font-size:11px"><div class="row between" style="padding:8px 10px;border-bottom:1px solid var(--line)"><b>Edit address</b><i data-i="x"></i></div><div style="padding:10px;display:grid;gap:6px;align-content:start"><span class="skel"></span><span class="skel" style="width:70%"></span><span class="skel"></span><span class="skel" style="width:50%"></span></div><div style="padding:8px 10px;border-top:1px solid var(--line)"><span class="btn sm" style="width:100%">Save address</span></div></div></div>
+        <p class="cap">Full screen on mobile. Title and Save stay put, the middle scrolls.</p>
+      </div>
+    </div>
+    <p class="figma">Design the modal at 320 px wide too. On small screens make it a full-screen sheet with a fixed title bar and action bar. Never fix the height in pixels.</p>
+    <details class="rule">WCAG 1.4.10 Reflow (AA): no two-direction scrolling at 320 CSS px wide. WCAG 1.4.4 Resize Text (AA): usable at 200% zoom.</details>
+  </article>
+</section>
+
+<!-- ================= LEVEL 2 ================= -->
+<section class="tier" data-tier="2">
+  <div class="tier-head"><h2>What you're probably missing</h2><p>You cannot see any of this in a mockup. It is all about where the keyboard focus is, and what a screen reader is told.</p></div>
+
+  <article class="topic" id="m-focus" data-who="keyboard,sr" data-check="Focus moves into the modal on open, stays inside while open, Esc closes it, and focus returns to the button that opened it.">
+    <h3>The focus journey: in, stay, out, back</h3>
+    <p class="lead">This is the single most important thing about modals. Four things must happen, in order: focus moves <strong>into</strong> the modal, <kbd>Tab</kbd> <strong>stays inside</strong> it, <kbd>Esc</kbd> <strong>closes</strong> it, and focus goes <strong>back</strong> to where you were. Miss one and keyboard users are lost.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center"><button class="btn sec" data-open="mLeaky">Open the leaky modal</button></div>
+        <ul class="tracker" data-for="mLeaky">
+          <li data-step="in" data-fail="Focus stayed on the page behind the modal."><span class="msg">Focus moves into the modal</span></li>
+          <li data-step="trap" data-fail="Tab wandered onto the page behind the modal."><span class="msg">Tab stays inside the modal</span></li>
+          <li data-step="esc" data-fail="Esc did nothing. (Press Esc again to leave this demo.)"><span class="msg">Esc closes it</span></li>
+          <li data-step="return" data-fail="Focus was not sent back to the button."><span class="msg">Focus returns to the button</span></li>
+        </ul>
+      </div>
+      <div class="demo good">
+        <div class="box center"><button class="btn" data-open="mGood">Open the accessible modal</button></div>
+        <ul class="tracker" data-for="mGood">
+          <li data-step="in" data-pass="Focus moved straight into the modal."><span class="msg">Focus moves into the modal</span></li>
+          <li data-step="trap" data-pass="Tab looped around inside the modal."><span class="msg">Tab stays inside the modal</span></li>
+          <li data-step="esc" data-pass="Esc closed it."><span class="msg">Esc closes it</span></li>
+          <li data-step="return" data-pass="Focus came back to the button you pressed."><span class="msg">Focus returns to the button</span></li>
+        </ul>
+      </div>
+    </div>
+    <p class="try">Use the keyboard only. Open each modal with <kbd>Enter</kbd>, press <kbd>Tab</kbd> five or six times, then press <kbd>Esc</kbd>. The four checks under each button fill in as you go.</p>
+    <p class="figma">For each modal, annotate two things: "focus starts here" (usually the first field or the safest button) and "on close, focus returns to" (the control that opened it). If that control is gone, for example a deleted row, say where focus goes instead.</p>
+    <details class="rule">WCAG 2.4.3 Focus Order (A) and 2.1.2 No Keyboard Trap (A). A modal is the one place focus is deliberately kept in, and Esc is the way out. Developers get most of this from the native <code>&lt;dialog&gt;</code> element.</details>
+  </article>
+
+  <article class="topic" id="m-title" data-who="sr,cognitive" data-check="Every modal has a visible title that says what it is for, and that title is announced when it opens.">
+    <h3>A title that is announced</h3>
+    <p class="lead">When a modal opens, a sighted user sees it at once. A screen reader user hears only what the modal is told to announce. With no title they hear "dialog" and have to explore to find out why the page just changed.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center"><div class="dlg"><p>This will remove the file for everyone on your team.</p><div class="acts"><span class="btn sec sm">Cancel</span><span class="btn danger sm">OK</span></div></div></div>
+        <div class="sr" data-say="dialog. Cancel, button."></div>
+      </div>
+      <div class="demo good">
+        <div class="box center"><div class="dlg"><h4>Delete "Q3 report"?</h4><p>This will remove the file for everyone on your team.</p><div class="acts"><span class="btn sec sm">Cancel</span><span class="btn danger sm">Delete file</span></div></div></div>
+        <div class="sr" data-say="Delete Q3 report?, dialog. This will remove the file for everyone on your team. Cancel, button."></div>
+      </div>
+    </div>
+    <p class="figma">Every modal gets a title, written as the question or task: "Delete Q3 report?", "Invite a teammate". Avoid "Warning" or "Are you sure?".</p>
+    <details class="rule">WCAG 4.1.2 Name, Role, Value (A). Developers give the container <code>role="dialog"</code> and point its name at the visible title.</details>
+  </article>
+
+  <article class="topic" id="m-inert" data-who="sr,keyboard,touch" data-check="While the modal is open, the page behind cannot be reached, read, scrolled or clicked.">
+    <h3>The page behind is switched off</h3>
+    <p class="lead">Dimming the background is only visual. If the page behind is still "live", a screen reader user swiping through content walks straight out of the modal and into the page, with the modal still covering it for everyone else.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="mini"><div class="pg" aria-hidden="true"><i class="b ring"></i><i></i><i style="width:70%"></i><i style="width:85%"></i></div><div class="dim-bg" style="opacity:.35"></div><div class="dlg" style="max-width:190px"><h4>Share</h4><p>Copy link</p></div></div>
+        <div class="sr" data-say="Share, dialog… (swipe) Dashboard, heading. New project, button. — now reading the page behind"></div>
+      </div>
+      <div class="demo good">
+        <div class="mini"><div class="pg" aria-hidden="true"><i class="b"></i><i></i><i style="width:70%"></i><i style="width:85%"></i></div><div class="dim-bg"></div><div class="dlg ring" style="max-width:190px"><h4>Share</h4><p>Copy link</p></div></div>
+        <div class="sr" data-say="Share, dialog… (swipe) Copy link, button… (swipe) Close, button. — end of dialog"></div>
+      </div>
+    </div>
+    <p class="figma">Note it once in your modal spec: "background is inert and does not scroll while open". Also give the dim layer enough darkness that the modal clearly sits on top.</p>
+    <details class="rule">WCAG 2.4.3 Focus Order (A) and 1.3.2 Meaningful Sequence (A). Developers use the <code>inert</code> attribute or a native modal <code>&lt;dialog&gt;</code>.</details>
+  </article>
+
+  <article class="topic" id="m-actions" data-who="keyboard,cognitive,sr" data-check="Buttons name the action (“Delete file”, not “Yes”); for destructive modals, focus starts on the safe option.">
+    <h3>Buttons that name the action, focus on the safe one</h3>
+    <p class="lead">Wherever focus starts is what <kbd>Enter</kbd> will press. If that is "Delete", one stray key press destroys data. And "Yes / No" forces people to re-read the question to know which is which. That is hard at high zoom or by ear.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center"><div class="dlg"><h4>Are you sure?</h4><p>This cannot be undone.</p><div class="acts"><span class="btn sec sm">No</span><span class="btn danger sm ring">Yes</span></div></div></div>
+        <p class="cap">Vague title, Yes / No, and focus sitting on the destructive button.</p>
+      </div>
+      <div class="demo good">
+        <div class="box center"><div class="dlg"><h4>Delete "Q3 report"?</h4><p>This cannot be undone.</p><div class="acts"><span class="btn sec sm ring">Cancel</span><span class="btn danger sm">Delete file</span></div></div></div>
+        <p class="cap">Each button makes sense alone. Focus starts on Cancel.</p>
+      </div>
+    </div>
+    <p class="figma">Write button labels that work without the title. Mark the starting focus on every destructive modal. Keep button order consistent across the product.</p>
+    <details class="rule">WCAG 3.3.4 Error Prevention (AA) for legal, financial and data actions, plus 2.4.6 Headings and Labels (AA) and 3.2.4 Consistent Identification (AA).</details>
+  </article>
+
+  <article class="topic" id="m-dismiss" data-who="motor,cognitive,everyone" data-check="Clicking outside or pressing Esc never silently throws away what someone has typed.">
+    <h3>Closing must not destroy work</h3>
+    <p class="lead">Click-outside-to-close is convenient on an info modal. On a modal with typed input it is a trap: one tremor, one misplaced tap, and five minutes of typing is gone with no warning.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="mini"><div class="dim-bg"></div><div class="dlg" style="max-width:210px"><h4>New ticket</h4><span class="skel"></span><span class="skel" style="width:80%"></span><span class="skel" style="width:60%"></span><p class="hint">Half written…</p></div></div>
+        <p class="cap">One click on the dim area and the draft is gone.</p>
+      </div>
+      <div class="demo good">
+        <div class="mini"><div class="dim-bg"></div><div class="dlg" style="max-width:210px"><h4>Discard this ticket?</h4><p>You have unsaved text.</p><div class="acts"><span class="btn sec sm ring">Keep editing</span><span class="btn danger sm">Discard</span></div></div></div>
+        <p class="cap">Once something is typed, closing asks first, or the draft is kept.</p>
+      </div>
+    </div>
+    <p class="figma">Decide per modal: info only, click outside closes. Has input, click outside does nothing, or asks. Write that decision in the spec.</p>
+    <details class="rule">WCAG 3.3.4 Error Prevention (AA) and, for timeouts and sign-in, 3.3.7 Redundant Entry (A): do not make people re-enter what they already gave you.</details>
+  </article>
+</section>
+
+<!-- ================= LEVEL 3 ================= -->
+<section class="tier" data-tier="3">
+  <div class="tier-head"><h2>Senior-level traps</h2><p>Each of these is a perfectly built modal used for the wrong job. This is the judgement that separates a senior designer.</p></div>
+
+  <article class="topic" id="m-nested" data-who="keyboard,sr,cognitive" data-check="A modal never opens another modal on top; the content changes in place, with a Back option.">
+    <h3>Never open a modal on top of a modal</h3>
+    <p class="lead">A second modal on top of the first doubles every rule above. Which one does <kbd>Esc</kbd> close? Where does focus return? Most products only built the logic for one layer, so the second breaks. Even when it works, people lose track of where they are.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center"><button class="btn sec" data-open="mAcctBad">Open settings (stacked version)</button></div>
+        <ul class="tracker" data-for="mDelBad">
+          <li data-step="in" data-fail="Focus stayed in the first modal, underneath."><span class="msg">Focus moves into the second modal</span></li>
+          <li data-step="trap" data-fail="Tab wandered into the modal underneath."><span class="msg">Tab stays inside the top modal</span></li>
+          <li data-step="esc" data-fail="Esc closed both modals at once."><span class="msg">Esc closes only the top one</span></li>
+          <li data-step="return" data-fail="Focus was lost. It is nowhere on the page now."><span class="msg">Focus returns to where you were</span></li>
+        </ul>
+      </div>
+      <div class="demo good" data-tag="Do instead">
+        <div class="box center"><button class="btn" data-open="mAcctGood">Open settings (one modal)</button></div>
+        <ul class="tracker" data-for="mAcctGood">
+          <li data-step="in" data-pass="Focus moved into the modal."><span class="msg">Focus moves into the modal</span></li>
+          <li data-step="trap" data-pass="Tab stayed inside, in both steps."><span class="msg">Tab stays inside</span></li>
+          <li data-step="esc" data-pass="Esc closed the one modal."><span class="msg">Esc closes it</span></li>
+          <li data-step="return" data-pass="Focus came back to the button you pressed."><span class="msg">Focus returns to the button</span></li>
+        </ul>
+      </div>
+    </div>
+    <p class="try">In both, choose "Delete account", then press <kbd>Tab</kbd> a few times and <kbd>Esc</kbd>. On the left there are two layers and the keyboard falls between them. On the right the same modal changes its content, with a Back button.</p>
+    <p class="figma">If a modal needs a follow-up question, replace its content as a second step with Back, or move the whole task to a page. Do not draw one modal over another.</p>
+    <details class="rule">Not banned by name in WCAG, but stacked modals routinely fail 2.4.3 Focus Order (A), 2.1.2 No Keyboard Trap (A) and 4.1.2 (A). The same applies to a popover or dropdown that spills outside a modal.</details>
+  </article>
+
+  <article class="topic" id="m-form" data-who="lowvision,keyboard,cognitive" data-check="Long forms are not placed in a modal; they get a page or a side panel.">
+    <h3>A long form squeezed into a modal</h3>
+    <p class="lead">Enterprise tools love this: "New employee" with a dozen fields in a small box. As soon as it scrolls, the title and close button scroll away, errors appear off screen, and at 200% zoom only two fields fit.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center"><button class="btn sec" data-open="mForm">Open the "New employee" modal</button></div>
+        <p class="cap">Seven fields in a short box.</p>
+      </div>
+      <div class="demo good" data-tag="Do instead">
+        <div class="mini" style="place-items:stretch;padding:0"><div style="display:grid;grid-template-columns:1fr 46%;height:100%;min-height:190px"><div class="pg" style="position:static;opacity:.5" aria-hidden="true"><i class="b"></i><i></i><i style="width:70%"></i><i></i></div><div style="border-left:1.5px solid var(--line-strong);padding:10px;display:grid;gap:7px;align-content:start;background:var(--surface)"><b style="font-size:13px">New employee</b><span class="skel"></span><span class="skel"></span><span class="skel" style="width:70%"></span><span class="btn sm" style="margin-top:8px">Save</span></div></div></div>
+        <p class="cap">A side panel or a full page: full height, room for errors, the page still visible for reference.</p>
+      </div>
+    </div>
+    <p class="try">Open the modal and Tab through every field. Watch the title and the close button scroll out of view.</p>
+    <p class="figma">Rule of thumb: more than four or five fields, its own scrollbar, or a need to look at the page behind means it should not be a modal.</p>
+    <details class="rule">WCAG 1.4.10 Reflow (AA), 1.4.4 Resize Text (AA) and 3.3.1 Error Identification (A) all become hard to meet inside a small scrolling box.</details>
+  </article>
+
+  <article class="topic" id="m-table" data-who="lowvision,keyboard,sr,touch" data-check="Data tables are not placed in a modal; no screen has a scrolling area inside another scrolling area.">
+    <h3>A table inside a modal</h3>
+    <p class="lead">"Select an account" opens a modal with a nine-column table. The table scrolls sideways, the modal scrolls up and down, and the page behind may scroll too. Two scroll areas nested in each other are disorienting for everyone. With a screen magnifier or a switch device they are close to unusable.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="box center"><button class="btn sec" data-open="mTable">Open the "Select account" modal</button></div>
+        <p class="cap">Wide table, narrow modal, two scrollbars.</p>
+      </div>
+      <div class="demo good" data-tag="Do instead">
+        <div class="box col"><div class="field"><label for="pick">Find an account</label><input id="pick" type="text" value="Glob" readonly></div><div class="cards"><div class="c"><b>Globex Ltd</b><br><span class="hint">Enterprise · Active</span></div><div class="c"><b>Global Freight</b><br><span class="hint">Starter · Paused</span></div></div></div>
+        <p class="cap">A search with a simple one-column list. Or give the table a full page.</p>
+      </div>
+    </div>
+    <p class="try">Open the modal and try to read the last column of the last row.</p>
+    <p class="figma">If people must pick one item, design a searchable list with two or three facts per item. If they truly need the full table, it deserves a page.</p>
+    <details class="rule">WCAG 1.4.10 Reflow (AA). Data tables are allowed to scroll sideways, but not inside a second scrolling container.</details>
+  </article>
+
+  <article class="topic" id="m-auto" data-who="sr,cognitive,keyboard" data-check="Modals only open because the person did something; nothing pops up on a timer, and time limits can be extended.">
+    <h3>Modals nobody asked for</h3>
+    <p class="lead">A newsletter popup three seconds after page load takes the focus away from whatever the person was reading. A screen reader user is moved mid-sentence into a dialog they did not request. The reverse also happens: a "session expiring" warning that fades away before it is noticed.</p>
+    <div class="pair">
+      <div class="demo bad">
+        <div class="mini"><div class="pg" aria-hidden="true"><i class="b"></i><i></i><i style="width:70%"></i><i></i></div><div class="dim-bg"></div><div class="dlg" style="max-width:200px"><h4>Wait! Get 10% off</h4><p>Appears on its own after 3 seconds.</p><div class="acts"><span class="btn sm">Sign up</span></div></div></div>
+        <p class="cap">Focus is pulled away from what you were doing.</p>
+      </div>
+      <div class="demo good">
+        <div class="mini" style="place-items:end stretch"><div class="pg" aria-hidden="true"><i class="b"></i><i></i><i style="width:70%"></i><i></i></div><div class="row between" style="position:relative;background:var(--surface);border:1.5px solid var(--line-strong);border-radius:10px;padding:8px 10px;font-size:13px"><span>Get 10% off your first order</span><span class="row"><span class="btn sm">Sign up</span><i data-i="x"></i></span></div></div>
+        <p class="cap">A banner that can be dismissed. It interrupts nobody and takes no focus.</p>
+      </div>
+    </div>
+    <p class="figma">A modal opens only after a user action. Promotions and tips go in banners. For time limits, design a warning that stays until answered and offers "Stay signed in".</p>
+    <details class="rule">WCAG 3.2.1 On Focus (A) and 3.2.5 Change on Request (AAA). For time limits: 2.2.1 Timing Adjustable (A).</details>
+  </article>
+
+  <article class="topic" id="m-alt" data-who="everyone" data-check="A modal is used only when the task truly needs to block the page; otherwise an inline message, popover, panel or page is used.">
+    <h3>Do you need a modal at all?</h3>
+    <p class="lead">Most modal problems share one fix: do not use a modal. A modal is right when the person <em>must</em> decide before anything else can happen. For everything else there is a calmer pattern that does not need a focus trap.</p>
+    <div class="tblwrap">
+      <table class="tbl">
+        <thead><tr><th scope="col">If you need to…</th><th scope="col">Use this</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Confirm something that can be undone</th><td>Do it, then show "Undo" in a message</td></tr>
+          <tr><th scope="row">Say that something worked</th><td>An inline message or a toast</td></tr>
+          <tr><th scope="row">Offer a few options for one item</th><td>A menu or popover next to the item</td></tr>
+          <tr><th scope="row">Fill in a long form, or refer to the page behind</th><td>A side panel or a full page</td></tr>
+          <tr><th scope="row">Browse or pick from a table</th><td>A full page, or a search list</td></tr>
+          <tr><th scope="row">Make a serious, irreversible decision</th><td><span class="badge ok"><i data-i="check"></i>A modal</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="figma" style="margin-top:14px">Before drawing a modal, ask: does the rest of the page really have to stop? If not, pick from the table above.</p>
+    <details class="rule">Fewer modals means fewer chances to fail 2.4.3, 2.1.2 and 4.1.2. This is a design decision, made before any code exists.</details>
+  </article>
+</section>
+
+<section class="section" aria-labelledby="quiz-h">
+  <h2 id="quiz-h">Spot the problem</h2>
+  <p class="sub">Five quick questions. You get the reason straight away.</p>
+  <div class="quiz" id="qm" data-quiz><script type="application/json">[
+    {"q":"A user closes a modal with Esc. Where should keyboard focus go?","a":["To the top of the page","Back to the button that opened the modal","It does not matter"],"c":1,"why":"They carry on from where they were.","hint":"Think about where they were before it opened."},
+    {"q":"Inside a “Settings” modal, “Delete account” opens a second modal on top. Best fix?","a":["Make the second modal smaller","Replace the content of the same modal with the confirmation step, with Back","Add a darker background"],"c":1,"why":"One layer, one focus trap, one way back.","hint":"How many layers should there be?"},
+    {"q":"A delete confirmation has buttons “Yes” and “No”, with focus starting on “Yes”. What is wrong?","a":["Only the colours","Labels do not name the action, and an accidental Enter deletes","Nothing"],"c":1,"why":"Use “Delete file” and “Cancel”, and start focus on Cancel.","hint":"What does Enter press?"},
+    {"q":"A 12-field form is shown in a 480 px modal. What should it be?","a":["A modal with smaller text","A full page or a side panel","Two modals"],"c":1,"why":"Long forms need height, room for errors and zoom.","hint":"What happens at 200% zoom?"},
+    {"q":"A modal opens and a screen reader says only “dialog”. What is missing?","a":["A title that is announced","An animation","A bigger close button"],"c":0,"why":"The title tells them why the page just changed.","hint":"What is this dialog about?"}
+  ]</script></div>
+</section>
+
+<section class="section panel check" id="checklist" aria-labelledby="check-h">
+  <div class="row between" style="margin-bottom:8px"><h2 id="check-h">Modal checklist</h2><button type="button" class="btn sec sm no-print" data-print><i data-i="print"></i>Print checklist</button></div>
+  <p class="cap" style="margin-bottom:10px">Use this in design review. Ticking an item also marks that topic as learned.</p>
+  <div id="checklist-body"></div>
+</section>
+
+<nav class="next" aria-label="Next page">
+  <a class="cta alt" href="toggles.html"><i data-i="back"></i>Toggles</a>
+  <a class="cta" href="tables.html">Next: Tables<i data-i="arrow"></i></a>
+</nav>
+
+</div></main>
+</div>
+
+<!-- ===== live demo modals (outside the page shell so the shell can be made inert) ===== -->
+<div class="overlay" id="mLeaky" data-leaky hidden>
+  <div class="modal narrow">
+    <header><h2>Rename file</h2><button class="ibtn" aria-label="Close" data-close><i data-i="x"></i></button></header>
+    <div class="body"><p>This modal is broken on purpose. Keep pressing Tab and watch where focus goes.</p><div class="field"><label for="lk1">File name</label><input id="lk1" type="text" value="Q3 report"></div></div>
+    <footer><button class="btn sec" data-close>Cancel</button><button class="btn" data-close>Rename</button></footer>
+  </div>
+</div>
+
+<div class="overlay" id="mGood" hidden>
+  <div class="modal narrow" role="dialog" aria-modal="true" aria-labelledby="mGoodT">
+    <header><h2 id="mGoodT">Rename file</h2><button class="ibtn" aria-label="Close" data-close><i data-i="x"></i></button></header>
+    <div class="body"><p>Focus started in the field below. Press Tab until it loops, then press Esc.</p><div class="field"><label for="gd1">File name</label><input id="gd1" type="text" value="Q3 report" data-autofocus></div></div>
+    <footer><button class="btn sec" data-close>Cancel</button><button class="btn" data-close>Rename</button></footer>
+  </div>
+</div>
+
+<div class="overlay" id="mAcctBad" hidden>
+  <div class="modal narrow" role="dialog" aria-modal="true" aria-labelledby="mAcctBadT">
+    <header><h2 id="mAcctBadT">Account settings</h2><button class="ibtn" aria-label="Close" data-close><i data-i="x"></i></button></header>
+    <div class="body"><p>Choose "Delete account" to open a second modal on top of this one.</p><div class="field"><label for="ab1">Display name</label><input id="ab1" type="text" value="Priya"></div></div>
+    <footer><button class="btn danger" data-open="mDelBad">Delete account…</button><button class="btn sec" data-close>Done</button></footer>
+  </div>
+</div>
+<div class="overlay top" id="mDelBad" data-leaky data-esc-all hidden>
+  <div class="modal narrow" style="width:min(100%,330px)">
+    <header><h2>Delete your account?</h2></header>
+    <div class="body"><p>This is a second modal stacked on the first. Press Tab a few times, then Esc.</p></div>
+    <footer><button class="btn sec" data-close>Cancel</button><button class="btn danger" data-close>Delete</button></footer>
+  </div>
+</div>
+
+<div class="overlay" id="mAcctGood" hidden>
+  <div class="modal narrow" role="dialog" aria-modal="true" aria-label="Account settings">
+    <div data-view="main">
+      <header><h2>Account settings</h2><button class="ibtn" aria-label="Close" data-close><i data-i="x"></i></button></header>
+      <div class="body"><p>Choose "Delete account". The content of this modal changes; no second layer opens.</p><div class="field"><label for="ag1">Display name</label><input id="ag1" type="text" value="Priya" data-autofocus></div></div>
+      <footer><button class="btn danger" data-goto-view="confirm">Delete account…</button><button class="btn sec" data-close>Done</button></footer>
+    </div>
+    <div data-view="confirm" hidden>
+      <header><h2>Delete your account?</h2><button class="ibtn" aria-label="Close" data-close><i data-i="x"></i></button></header>
+      <div class="body"><p>Step 2 of 2. Same modal, new content. Focus moved to this heading. Tab around, go Back, or press Esc.</p></div>
+      <footer><button class="btn sec" data-goto-view="main"><i data-i="back"></i>Back</button><button class="btn danger" data-close>Delete account</button></footer>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="mForm" hidden>
+  <div class="modal cramped" role="dialog" aria-modal="true" aria-labelledby="mFormT">
+    <header><h2 id="mFormT">New employee</h2><button class="ibtn" aria-label="Close" data-close><i data-i="x"></i></button></header>
+    <div class="body">
+      <div class="field"><label for="fm1">Full name</label><input id="fm1" type="text" data-autofocus></div>
+      <div class="field"><label for="fm2">Work email</label><input id="fm2" type="text"></div>
+      <div class="field"><label for="fm3">Department</label><select id="fm3"><option>Design</option><option>Engineering</option><option>Sales</option></select></div>
+      <div class="field"><label for="fm4">Manager</label><input id="fm4" type="text"></div>
+      <div class="field"><label for="fm5">Start date</label><input id="fm5" type="text" placeholder="DD/MM/YYYY"></div>
+      <div class="field"><label for="fm6">Location</label><input id="fm6" type="text"></div>
+      <div class="field"><label for="fm7">Employee ID</label><input id="fm7" type="text"><span class="err"><i data-i="warn"></i>This ID is already in use</span></div>
+    </div>
+    <footer><button class="btn sec" data-close>Cancel</button><button class="btn" data-close>Create employee</button></footer>
+  </div>
+</div>
+
+<div class="overlay" id="mTable" hidden>
+  <div class="modal cramped" role="dialog" aria-modal="true" aria-labelledby="mTableT">
+    <header><h2 id="mTableT">Select account</h2><button class="ibtn" aria-label="Close" data-close data-autofocus><i data-i="x"></i></button></header>
+    <div class="body">
+      <div class="tblwrap" tabindex="0" role="region" aria-label="Accounts table, scrolls sideways">
+        <table class="tbl" style="min-width:900px">
+          <thead><tr><th scope="col">Account</th><th scope="col">Plan</th><th scope="col">Status</th><th scope="col">Owner</th><th scope="col">Region</th><th scope="col">Seats</th><th scope="col">Renewal</th><th scope="col">MRR</th><th scope="col">Action</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Acme Corp</th><td>Enterprise</td><td>Active</td><td>R. Mehta</td><td>APAC</td><td class="num">120</td><td>12 Mar</td><td class="num">$4,800</td><td><button class="btn sec sm" data-close>Select</button></td></tr>
+            <tr><th scope="row">Globex Ltd</th><td>Enterprise</td><td>Active</td><td>A. Khan</td><td>EMEA</td><td class="num">85</td><td>02 Apr</td><td class="num">$3,400</td><td><button class="btn sec sm" data-close>Select</button></td></tr>
+            <tr><th scope="row">Initech</th><td>Team</td><td>Paused</td><td>S. Rao</td><td>US</td><td class="num">30</td><td>19 May</td><td class="num">$900</td><td><button class="btn sec sm" data-close>Select</button></td></tr>
+            <tr><th scope="row">Umbrella</th><td>Team</td><td>Active</td><td>J. Lee</td><td>US</td><td class="num">44</td><td>23 Jun</td><td class="num">$1,320</td><td><button class="btn sec sm" data-close>Select</button></td></tr>
+            <tr><th scope="row">Hooli</th><td>Starter</td><td>Trial</td><td>M. Das</td><td>APAC</td><td class="num">8</td><td>30 Jun</td><td class="num">$0</td><td><button class="btn sec sm" data-close>Select</button></td></tr>
+            <tr><th scope="row">Stark Ind.</th><td>Enterprise</td><td>Active</td><td>P. Nair</td><td>EMEA</td><td class="num">210</td><td>14 Jul</td><td class="num">$8,400</td><td><button class="btn sec sm" data-close>Select</button></td></tr>
+            <tr><th scope="row">Wayne Co.</th><td>Team</td><td>Active</td><td>K. Iyer</td><td>US</td><td class="num">52</td><td>01 Aug</td><td class="num">$1,560</td><td><button class="btn sec sm" data-close>Select</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <footer><button class="btn sec" data-close>Cancel</button></footer>
+  </div>
+</div>
+
+<script src="assets/site.js"></script>
+</body>
+</html>

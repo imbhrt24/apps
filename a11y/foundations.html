@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Foundations — Accessibility, by Example</title>
+<meta name="description" content="Accessibility basics for designers in five short chapters: who you design for, how people operate a screen, what a screen reader says, seeing through other eyes, and WCAG in one screen.">
+<script>try{var t=localStorage.getItem('a11y-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page="foundations">
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+<main id="main" tabindex="-1"><div class="wrap">
+
+<header class="hero">
+  <p class="eyebrow">Start here · about 10 minutes</p>
+  <h1>Foundations</h1>
+  <p class="lede">Five ideas explain almost every accessibility rule you will meet. Learn these once and the component pages stop being a list to memorise. Each rule becomes an obvious consequence.</p>
+  <nav aria-label="Chapters" class="row" style="margin-top:20px">
+    <a class="chip t1" href="#f-who">1. Who</a><a class="chip t1" href="#f-ways">2. How they operate it</a><a class="chip t1" href="#f-nrs">3. Name, role, state</a><a class="chip t1" href="#f-see">4. Other eyes</a><a class="chip t1" href="#f-wcag">5. WCAG</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section class="chapter" id="f-who" data-learn>
+  <p class="k">Chapter 1</p>
+  <h2>Who you are designing for</h2>
+  <p>Accessibility is often pictured as design for a small group of blind users. It is far wider. Disability can be permanent, temporary or simply a situation, and all three need the same design.</p>
+  <div class="grid g3" style="margin:22px 0">
+    <div class="tile"><span class="stat">1 in 6</span><p>people worldwide live with a significant disability. That is about 1.3 billion people (World Health Organization).</p></div>
+    <div class="tile"><span class="stat">1 in 12</span><p>men have some form of colour blindness, and about 1 in 200 women.</p></div>
+    <div class="tile"><span class="stat">Everyone</span><p>is disabled some of the time: a broken wrist, a bright sun, a sleeping baby on one arm.</p></div>
+  </div>
+  <div class="tblwrap">
+    <table class="tbl">
+      <caption>The same need, three ways</caption>
+      <thead><tr><th scope="col">Ability</th><th scope="col">Permanent</th><th scope="col">Temporary</th><th scope="col">Situational</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Seeing</th><td>Blind, low vision</td><td>Eye infection</td><td>Phone in bright sunlight</td></tr>
+        <tr><th scope="row">Hearing</th><td>Deaf, hard of hearing</td><td>Ear infection</td><td>Noisy train, muted laptop</td></tr>
+        <tr><th scope="row">Moving</th><td>One arm, tremor</td><td>Broken wrist</td><td>Holding a child, bumpy bus</td></tr>
+        <tr><th scope="row">Thinking</th><td>Dyslexia, ADHD</td><td>Concussion, medication</td><td>Tired, stressed, interrupted</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:16px"><strong>The takeaway:</strong> design for the permanent column and you have solved the other two for free. High contrast helps the blind user and the person in the sun.</p>
+</section>
+
+<!-- 2 -->
+<section class="chapter" id="f-ways" data-learn>
+  <p class="k">Chapter 2</p>
+  <h2>Five ways people operate your screen</h2>
+  <p>You design with a mouse on a large monitor. Your users arrive in five different ways, and your design has to work in all of them at once.</p>
+  <div class="grid g3" style="margin:22px 0">
+    <div class="tile"><div class="ico"><i data-i="pointer"></i></div><h3>Mouse or touch</h3><p>What you test with. Needs targets big enough to hit, and nothing that only works on hover.</p></div>
+    <div class="tile"><div class="ico"><i data-i="keyboard"></i></div><h3>Keyboard only</h3><p>People with tremor or pain, power users, and everyone using a switch device. They need to reach everything and see where they are.</p></div>
+    <div class="tile"><div class="ico"><i data-i="speaker"></i></div><h3>Screen reader</h3><p>Software that reads the screen aloud: VoiceOver, TalkBack, NVDA, JAWS. It reads names and structure, not pixels.</p></div>
+    <div class="tile"><div class="ico"><i data-i="zoom"></i></div><h3>Zoom and magnifier</h3><p>Low vision users at 200% to 400%. They see a small part of the screen at a time, like a phone layout on a laptop.</p></div>
+    <div class="tile"><div class="ico"><i data-i="mic"></i></div><h3>Voice control</h3><p>"Click Save changes." They speak the words they can see, so visible labels must match the real names.</p></div>
+  </div>
+  <div class="panel">
+    <h3 style="margin-bottom:6px">Try the whole keyboard vocabulary</h3>
+    <p class="cap" style="margin-bottom:14px">Most interfaces are operated with six keys. Press each one now. Each card lights up when you do.</p>
+    <div class="keys" data-keys>
+      <div class="key" data-key="Tab"><kbd>Tab</kbd><span>Move to the next control</span></div>
+      <div class="key" data-key="ShiftTab"><kbd>Shift</kbd> + <kbd>Tab</kbd><span>Move back</span></div>
+      <div class="key" data-key="Enter"><kbd>Enter</kbd><span>Press a button, follow a link</span></div>
+      <div class="key" data-key="Space"><kbd>Space</kbd><span>Press a button, flip a switch, tick a box</span></div>
+      <div class="key" data-key="Escape"><kbd>Esc</kbd><span>Close or cancel</span></div>
+      <div class="key" data-key="Arrow"><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd><span>Move inside a group: tabs, menus, radio buttons</span></div>
+    </div>
+    <p class="cap" role="status" data-keys-out style="margin-top:12px;font-weight:650">0 of 6 keys tried.</p>
+  </div>
+  <p style="margin-top:16px"><strong>The takeaway:</strong> before you hand off any screen, put the mouse away and use it with these six keys. It is the fastest accessibility test there is.</p>
+</section>
+
+<!-- 3 -->
+<section class="chapter" id="f-nrs" data-learn>
+  <p class="k">Chapter 3</p>
+  <h2>What a screen reader actually says</h2>
+  <p>This is the idea every later page depends on. A screen reader cannot see your layout. For each control it reads three facts, and all three are your design decisions.</p>
+  <div class="grid g3" style="margin:22px 0">
+    <div class="tile"><h3>Name</h3><p>What is it called? "Save changes", "Delete invoice", "Dark mode".</p></div>
+    <div class="tile"><h3>Role</h3><p>What kind of thing is it? Button, link, switch, checkbox, dialog, table.</p></div>
+    <div class="tile"><h3>State</h3><p>What condition is it in? On, off, pressed, expanded, selected, loading.</p></div>
+  </div>
+  <div class="panel" data-nrs>
+    <h3 style="margin-bottom:6px">Hear it for yourself</h3>
+    <p class="cap" style="margin-bottom:14px">Press <kbd>Tab</kbd> through these controls, or click them. The dark panel shows what would be read aloud, split into the three parts.</p>
+    <div class="box" style="margin-bottom:12px">
+      <button class="btn" data-n="Save changes" data-r="button" data-noop>Save changes</button>
+      <button class="ibtn" data-n="" data-r="button" data-noop><i data-i="trash"></i></button>
+      <button class="ibtn" aria-label="Delete invoice" data-n="Delete invoice" data-r="button" data-noop><i data-i="trash"></i></button>
+      <span class="row"><label for="nrs-sw" style="font-weight:600">Dark mode</label><button class="sw" role="switch" aria-checked="false" id="nrs-sw" data-n="Dark mode" data-r="switch"></button></span>
+      <label class="row" style="font-weight:600"><input type="checkbox" style="width:18px;height:18px" data-n="Remember me" data-r="checkbox">Remember me</label>
+      <a href="#f-nrs" data-n="View pricing" data-r="link" data-noop>View pricing</a>
+    </div>
+    <div class="nrs-out" aria-hidden="true">
+      <div><b>Name</b><span data-slot="n">Tab to a control</span></div>
+      <div><b>Role</b><span data-slot="r">—</span></div>
+      <div><b>State</b><span data-slot="s">—</span></div>
+    </div>
+    <p class="cap" style="margin-top:12px">Notice the first bin icon. It has a role, but no name. A blind user hears only "button". The second bin is identical on screen and says "Delete invoice".</p>
+  </div>
+
+  <h3 style="margin:30px 0 8px">The same rule for images: alt text</h3>
+  <p>An image has a name too. It is called alt text, and you write it. Describe what the image <em>tells</em> the reader, not what it looks like. If the image is only decoration, mark it as decorative so it is skipped.</p>
+  <div class="pair">
+    <div class="demo bad"><span class="tag"><i data-i="x"></i>Avoid</span>
+      <div class="box center" style="align-items:flex-end;min-height:110px" aria-hidden="true"><span style="width:22px;height:30px;background:var(--line-strong);border-radius:3px"></span><span style="width:22px;height:42px;background:var(--line-strong);border-radius:3px"></span><span style="width:22px;height:60px;background:var(--line-strong);border-radius:3px"></span><span style="width:22px;height:80px;background:var(--primary);border-radius:3px"></span></div>
+      <div class="sr" data-say="chart_final_v3.png, image"></div>
+    </div>
+    <div class="demo good"><span class="tag"><i data-i="check"></i>Do</span>
+      <div class="box center" style="align-items:flex-end;min-height:110px" aria-hidden="true"><span style="width:22px;height:30px;background:var(--line-strong);border-radius:3px"></span><span style="width:22px;height:42px;background:var(--line-strong);border-radius:3px"></span><span style="width:22px;height:60px;background:var(--line-strong);border-radius:3px"></span><span style="width:22px;height:80px;background:var(--primary);border-radius:3px"></span></div>
+      <div class="sr" data-say="Bar chart: sign-ups more than doubled from March to June, image"></div>
+    </div>
+  </div>
+  <p><strong>The takeaway:</strong> for every control and image you draw, be able to say its name, its role and its state. If you cannot, a screen reader cannot either.</p>
+  <p class="cap">The dark "simulated screen reader" strips on this site are an approximation for learning. Real screen readers word things slightly differently from each other.</p>
+</section>
+
+<!-- 4 -->
+<section class="chapter" id="f-see" data-learn>
+  <p class="k">Chapter 4</p>
+  <h2>See your design through other eyes</h2>
+  <p>You know the contrast rule as a number. Here is what the number protects against. Switch the filters on and off, alone or together, and watch what survives.</p>
+  <div class="panel" style="margin-top:20px">
+    <div class="simbar" style="margin-bottom:14px">
+      <button type="button" class="simbtn" data-sim="blur" data-target="#vision-sample" aria-pressed="false">Blurred vision</button>
+      <button type="button" class="simbtn" data-sim="glare" data-target="#vision-sample" aria-pressed="false">Sunlight on the screen</button>
+      <button type="button" class="simbtn" data-sim="cb" data-target="#vision-sample" aria-pressed="false">Red-green colour blindness</button>
+      <button type="button" class="simbtn" data-sim="zoom" data-target="#vision-sample" aria-pressed="false">Zoomed in</button>
+    </div>
+    <div style="overflow:auto;border-radius:12px;border:1px solid var(--line);max-height:420px">
+      <div id="vision-sample" class="light" style="padding:20px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+        <div style="border:1px solid #EFEFEF;border-radius:12px;padding:16px;display:grid;gap:8px">
+          <b style="color:#B9B9B9;font-size:13px">ORDER #4821</b>
+          <span style="color:#C4C4C4;font-size:12px">Delivery by Friday. Tap the dot to track.</span>
+          <span class="row"><span class="dot g"></span><span class="dot r"></span><span style="font-size:12px;color:#BDBDBD">status</span></span>
+          <span class="btn sm" style="background:#B8C6FF;color:#fff;align-self:start;justify-self:start">Track</span>
+        </div>
+        <div style="border:1.5px solid #77736B;border-radius:12px;padding:16px;display:grid;gap:8px">
+          <b style="font-size:15px">Order #4821</b>
+          <span style="font-size:14px">Delivery by Friday.</span>
+          <span class="badge" style="color:#17794A;background:#E7F5ED;justify-self:start"><i data-i="check"></i>On its way</span>
+          <span class="btn sm" style="background:#2B4EDB;color:#fff;justify-self:start">Track order</span>
+        </div>
+      </div>
+    </div>
+    <p class="cap" style="margin-top:12px">Left: pale grey text, colour-only status, a faint button. Right: the same card with real contrast, a worded status and a clear button.</p>
+  </div>
+  <p style="margin-top:16px"><strong>The takeaway:</strong> a good design is one that still works after it has been blurred, washed out, drained of colour and zoomed. The rules for contrast, colour and size exist for that reason.</p>
+</section>
+
+<!-- 5 -->
+<section class="chapter" id="f-wcag" data-learn>
+  <p class="k">Chapter 5</p>
+  <h2>WCAG, in one screen</h2>
+  <p>WCAG (say "wuh-cag") is the Web Content Accessibility Guidelines, the standard that laws and company policies point to. The current version is 2.2. It is long, but it rests on four principles.</p>
+  <div class="grid g2" style="margin:22px 0">
+    <div class="tile"><h3>Perceivable</h3><p>People can see or hear it. Contrast, text size, alt text, not relying on colour.</p></div>
+    <div class="tile"><h3>Operable</h3><p>People can use it. Keyboard access, target size, visible focus, enough time.</p></div>
+    <div class="tile"><h3>Understandable</h3><p>People can make sense of it. Clear labels, predictable behaviour, helpful errors.</p></div>
+    <div class="tile"><h3>Robust</h3><p>Assistive technology can read it. Every control has a name, a role and a state.</p></div>
+  </div>
+  <div class="tblwrap">
+    <table class="tbl">
+      <caption>The three levels</caption>
+      <thead><tr><th scope="col">Level</th><th scope="col">What it means</th><th scope="col">What to do with it</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">A</th><td>The minimum. Without it, some people cannot use the product at all.</td><td>Always meet it.</td></tr>
+        <tr><th scope="row">AA</th><td>The standard that most laws and companies require.</td><td><strong>This is your target.</strong></td></tr>
+        <tr><th scope="row">AAA</th><td>The highest level. Not always possible for every screen.</td><td>Use it as a source of good ideas.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3 style="margin:30px 0 8px">Who decides what</h3>
+  <p>Most accessibility problems are created in the design file and only discovered in code. This is the split:</p>
+  <div class="tblwrap">
+    <table class="tbl">
+      <thead><tr><th scope="col">The designer decides</th><th scope="col">The developer builds</th></tr></thead>
+      <tbody>
+        <tr><td>Colours and contrast, in every state</td><td>The right element for each control (button, link, switch)</td></tr>
+        <tr><td>Sizes and spacing of targets</td><td>Keyboard behaviour</td></tr>
+        <tr><td>Names, labels and error wording</td><td>Wiring names, roles and states so they are announced</td></tr>
+        <tr><td>What the focus state looks like, and where focus goes</td><td>Moving and returning focus</td></tr>
+        <tr><td>Which pattern to use (modal or page, switch or checkbox)</td><td>Announcing changes such as "Saved"</td></tr>
+        <tr><td>Alt text, headings and table titles</td><td>Testing with real assistive technology</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:16px"><strong>The takeaway:</strong> aim for AA, and treat the left column as your job. On every component page the "In your design file" note tells you what to put in the spec.</p>
+</section>
+
+<section class="section" aria-labelledby="q9-h">
+  <h2 id="q9-h">Nine questions to ask of any component</h2>
+  <p class="sub">This is everything above, turned into a habit. The component pages are these nine questions, answered for buttons, toggles, modals and tables.</p>
+  <ol class="q8">
+    <li><b>Can I see it?</b><span>Contrast for text, icons and borders.</span></li>
+    <li><b>Can I hit it?</b><span>Target size and spacing.</span></li>
+    <li><b>Can I reach it without a mouse?</b><span>Tab, Enter, Space, Esc.</span></li>
+    <li><b>Can I see where I am?</b><span>A visible focus state.</span></li>
+    <li><b>Does it have a name?</b><span>Icons, images, fields, tables.</span></li>
+    <li><b>Does it say what it is, and its state?</b><span>Switch, on. Row, expanded.</span></li>
+    <li><b>Does it work without colour?</b><span>Words and icons carry the meaning.</span></li>
+    <li><b>Does it survive zoom and a small screen?</b><span>Nothing cut off at 200%.</span></li>
+    <li><b>Does it tell me what happened?</b><span>Saved, failed, loading, in words.</span></li>
+  </ol>
+</section>
+
+<nav class="next" aria-label="Next page">
+  <a class="cta alt" href="index.html"><i data-i="back"></i>Home</a>
+  <a class="cta" href="buttons.html">Next: Buttons<i data-i="arrow"></i></a>
+</nav>
+
+</div></main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>
